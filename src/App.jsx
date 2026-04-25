@@ -156,7 +156,7 @@ function CoinTable({ title, icon, rows }) {
       border: "1px solid #E6E2D8",
       overflow: "hidden",
       boxShadow: "0 1px 4px rgba(0,0,0,.06)",
-      flex: "1 1 0", minWidth: 0, width: "100%",
+      width: "100%",
     }}>
       <SectionHead icon={icon} title={title} />
       <ColHead />
@@ -381,6 +381,7 @@ export default function App() {
         <div style={{
           display: "flex",
           flexDirection: mobile ? "column" : "row",
+          flexWrap: "wrap",
           gap: 16, marginBottom: 16,
         }}>
           <CoinTable
