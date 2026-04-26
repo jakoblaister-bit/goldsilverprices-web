@@ -192,21 +192,6 @@ function TopBar({ goldSpot, silverSpot, goldChange, silverChange }) {
       </div>
 
       {/* Source badge */}
-      {!mobile && (
-        <a
-          href="https://www.tradingview.com"
-          target="_blank"
-          rel="noreferrer"
-          style={{
-            fontSize: 9, color: "#94A3B8",
-            textDecoration: "none",
-            display: "flex", alignItems: "center", gap: 4,
-          }}
-        >
-          Prices by
-          <span style={{ fontWeight: 700, color: "#2962FF" }}>TradingView</span>
-        </a>
-      )}
     </div>
   );
 }
@@ -1282,6 +1267,19 @@ function AppInner() {
   
 
   async function fetchSpot() {
+    // Check 1-minute cache first
+    try {
+      const cached = sessionStorage.getItem('spot_cache');
+      if (cached) {
+        const { gold, silver, ts } = JSON.parse(cached);
+        if (Date.now() - ts < 60000) {
+          if (gold)   setGoldSpot(gold);
+          if (silver) setSilverSpot(silver);
+          return;
+        }
+      }
+    } catch {}
+
     try {
       const [goldRes, silverRes] = await Promise.all([
         fetch("https://api.gold-api.com/price/XAU/AUD"),
@@ -1289,8 +1287,19 @@ function AppInner() {
       ]);
       const gold   = await goldRes.json();
       const silver = await silverRes.json();
-      if (gold?.price   && gold.price > 5000)  setGoldSpot(Math.round(gold.price));
-      if (silver?.price && silver.price > 80)  setSilverSpot(Math.round(silver.price * 100) / 100);
+
+      const goldPrice   = gold?.price   && gold.price   > 5000 ? Math.round(gold.price)                  : null;
+      const silverPrice = silver?.price && silver.price > 80   ? Math.round(silver.price * 100) / 100    : null;
+
+      if (goldPrice)   setGoldSpot(goldPrice);
+      if (silverPrice) setSilverSpot(silverPrice);
+
+      // Cache for 1 minute
+      if (goldPrice && silverPrice) {
+        sessionStorage.setItem('spot_cache', JSON.stringify({
+          gold: goldPrice, silver: silverPrice, ts: Date.now()
+        }));
+      }
     } catch(e) {
       console.log("Spot fetch failed:", e.message);
     }
