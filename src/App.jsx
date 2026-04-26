@@ -447,7 +447,7 @@ function BarRow({ sizeLabel, cheapest, brand, i, onClick }) {
       onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#FAFBFC"}
     >
       <span style={{ fontSize: 11, color: MUTED, minWidth: 44, flexShrink: 0 }}>{sizeLabel}</span>
-      <span style={{ flex: 1, fontSize: 13, color: "#1E293B", textAlign: "left", paddingLeft: 8 }}>{brand || (tab === "Silver Bars" ? "Silver Bar" : "Gold Bar")}</span>
+      <span style={{ flex: 1, fontSize: 13, color: "#1E293B", textAlign: "left", paddingLeft: 8 }}>{brand || "Bullion Bar"}</span>
       <span style={{ fontSize: 10, color: MUTED, marginRight: 4 }}>from</span>
       <span style={{ fontSize: 13, fontWeight: 600, color: NAVY, whiteSpace: "nowrap" }}>
         {fmt(cheapest.buy_price)}
@@ -559,6 +559,24 @@ function Footer() {
       </div>
     </footer>
   );
+}
+
+
+/* ── SEO helper ───────────────────────────────────────────────────────────── */
+function useSEO({ title, description }) {
+  useEffect(() => {
+    if (!title) return;
+    document.title = title;
+    try {
+      let meta = document.querySelector('meta[name="description"]');
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'description');
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', description || '');
+    } catch(e) {}
+  }, [title, description]);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════ */
@@ -1039,6 +1057,59 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
   );
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* SELL PAGE                                                                  */
+/* ══════════════════════════════════════════════════════════════════════════ */
+function SellPage({ goldSpot, silverSpot, updated }) {
+  const mobile = useIsMobile();
+  const navigate = useNavigate();
+  useSEO({
+    title: "Sell Gold & Silver Australia | GoldSilverPrices.com.au",
+    description: "Compare buyback prices from 8 Australian bullion dealers.",
+  });
+  return (
+    <div style={{ minHeight: "100vh", background: BG }}>
+      <Header goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />
+      <div style={{ maxWidth: 700, margin: "0 auto", padding: mobile ? "40px 16px" : "80px 24px", textAlign: "center" }}>
+        <div style={{ fontSize: 40, marginBottom: 16 }}>💰</div>
+        <h1 style={{ fontSize: mobile ? 22 : 30, fontWeight: 700, color: NAVY, marginBottom: 12, fontFamily: "'Inter',system-ui,sans-serif" }}>Sell Your Bullion</h1>
+        <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.8, marginBottom: 24 }}>Compare buyback prices from all 8 Australian dealers. Coming soon.</p>
+        <button onClick={() => navigate("/")} style={{ background: NAVY, color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+          Back to Compare →
+        </button>
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* MAGAZINE PAGE                                                              */
+/* ══════════════════════════════════════════════════════════════════════════ */
+function MagazinePage({ goldSpot, silverSpot, updated }) {
+  const mobile = useIsMobile();
+  const navigate = useNavigate();
+  useSEO({
+    title: "Gold & Silver Magazine Australia | GoldSilverPrices.com.au",
+    description: "Gold and silver market news and investment guides for Australian investors.",
+  });
+  return (
+    <div style={{ minHeight: "100vh", background: BG }}>
+      <Header goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />
+      <div style={{ maxWidth: 700, margin: "0 auto", padding: mobile ? "40px 16px" : "80px 24px", textAlign: "center" }}>
+        <div style={{ fontSize: 40, marginBottom: 16 }}>📰</div>
+        <h1 style={{ fontSize: mobile ? 22 : 30, fontWeight: 700, color: NAVY, marginBottom: 12, fontFamily: "'Inter',system-ui,sans-serif" }}>Gold & Silver Magazine</h1>
+        <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.8, marginBottom: 24 }}>Market analysis, investment guides and the latest news. Coming soon.</p>
+        <button onClick={() => navigate("/")} style={{ background: NAVY, color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+          Back to Compare →
+        </button>
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════════════════════════ */
 /* DEALERS PAGE — placeholder                                                 */
 /* ══════════════════════════════════════════════════════════════════════════ */
@@ -1128,6 +1199,67 @@ function DealersPage({ rows, goldSpot, silverSpot, updated }) {
 }
 
 
+
+/* ── Magazine Carousel ────────────────────────────────────────────────────── */
+function MagazineCarousel() {
+  const mobile = useIsMobile();
+  const [active, setActive] = useState(0);
+  const navigate = useNavigate();
+
+  const slides = [
+    { img: "https://images.pexels.com/photos/47344/gold-bar-gold-bar-gold-47344.jpeg?w=800", headline: "Gold hits new AUD record as dollar weakens", sub: "Compare prices now →" },
+    { img: "https://images.pexels.com/photos/128867/coins-currency-investment-insurance-128867.jpeg?w=800", headline: "Why Australians are buying silver in 2026", sub: "View silver prices →" },
+    { img: "https://images.pexels.com/photos/259132/pexels-photo-259132.jpeg?w=800", headline: "Perth Mint reports record bullion demand Q1 2026", sub: "Read more →" },
+    { img: "https://images.pexels.com/photos/534216/pexels-photo-534216.jpeg?w=800", headline: "What is the gold premium and why it matters", sub: "Learn more →" },
+    { img: "https://images.pexels.com/photos/210600/pexels-photo-210600.jpeg?w=800", headline: "How to store your gold safely in Australia", sub: "Storage guide →" },
+    { img: "https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg?w=800", headline: "Silver premiums at historic lows — is now the time?", sub: "Compare silver →" },
+    { img: "https://images.pexels.com/photos/844124/pexels-photo-844124.jpeg?w=800", headline: "Is gold a good investment in 2026?", sub: "Read the analysis →" },
+    { img: "https://images.pexels.com/photos/534216/pexels-photo-534216.jpeg?w=800", headline: "Top 5 mistakes new gold investors make", sub: "Investor guide →" },
+    { img: "https://images.pexels.com/photos/259132/pexels-photo-259132.jpeg?w=800", headline: "How the RBA rate decision affects gold prices", sub: "Market update →" },
+    { img: "https://images.pexels.com/photos/47344/gold-bar-gold-bar-gold-47344.jpeg?w=800", headline: "Buying gold online vs in store — which is better?", sub: "Compare dealers →" },
+  ];
+
+  const perPage = mobile ? 1 : 2;
+  const total   = Math.ceil(slides.length / perPage);
+
+  useEffect(() => {
+    const t = setInterval(() => setActive(a => (a + 1) % total), 6000);
+    return () => clearInterval(t);
+  }, [mobile, total]);
+
+  const prev = () => setActive(a => (a - 1 + total) % total);
+  const next = () => setActive(a => (a + 1) % total);
+  const visible = slides.slice(active * perPage, active * perPage + perPage);
+
+  const SlideCard = ({ slide }) => (
+    <div onClick={() => navigate("/magazine")} style={{ flex: 1, position: "relative", overflow: "hidden", borderRadius: mobile ? 6 : 8, cursor: "pointer", minWidth: 0 }}>
+      <img src={slide.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)" }} />
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: mobile ? "12px" : "14px" }}>
+        <div style={{ fontSize: mobile ? 13 : 14, fontWeight: 700, color: "#fff", lineHeight: 1.35, fontFamily: "'Inter',system-ui,sans-serif", marginBottom: 4 }}>{slide.headline}</div>
+        <div style={{ fontSize: 11, color: "#E2C97E", fontWeight: 500 }}>{slide.sub}</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ background: "transparent", padding: mobile ? "10px 10px 0" : "12px 24px 0" }}>
+      <div style={{ display: "flex", height: mobile ? 180 : 200, gap: mobile ? 0 : 10, overflow: "hidden" }}>
+        {visible.map((slide, i) => <SlideCard key={active * perPage + i} slide={slide} />)}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0 0" }}>
+        <button onClick={prev} style={{ background: "none", border: "none", color: "#94A3B8", fontSize: 20, cursor: "pointer", padding: "8px 12px", minHeight: 40, minWidth: 40, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>‹</button>
+        <div style={{ display: "flex", gap: 7, alignItems: "center" }}>
+          {Array.from({ length: total }).map((_, i) => (
+            <div key={i} onClick={() => setActive(i)} style={{ width: i === active ? 20 : 8, height: 8, borderRadius: i === active ? 4 : "50%", background: i === active ? "#1B3A5C" : "#CBD5E1", cursor: "pointer", transition: "all .25s ease", minWidth: 8 }} />
+          ))}
+        </div>
+        <button onClick={next} style={{ background: "none", border: "none", color: "#94A3B8", fontSize: 20, cursor: "pointer", padding: "8px 12px", minHeight: 40, minWidth: 40, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>›</button>
+      </div>
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════════════════════════ */
 /* HOMEPAGE                                                                   */
 /* ══════════════════════════════════════════════════════════════════════════ */
@@ -1200,7 +1332,7 @@ function HomePage({ rows, goldSpot, silverSpot, updated }) {
           <iframe
             src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUAUD&interval=D&hidesidetoolbar=1&hidetoptoolbar=0&style=1&theme=light&timezone=Australia%2FSydney&withdateranges=1&locale=en"
             style={{ width: "100%", height: mobile ? 250 : 350, border: "none", display: "block" }}
-            allowTransparency="true"
+            allowtransparency="true"
             scrolling="no"
           />
         </div>
