@@ -1,33 +1,16 @@
 const fs = require('fs');
 let c = fs.readFileSync('src/App.jsx', 'utf8');
+const lines = c.split('\n');
 
-c = c.replace(
-  `          <div style={{ flex: "1 1 0", minWidth: 0 }}>
-            <CoinsSection
-              metal="silver" icon="🥈" title="Silver Coins"
-              weights={SILVER_WEIGHTS} rows={rows}`,
-  `          <div style={{ flex: "1 1 0", minWidth: 0, width: "100%" }}>
-            <CoinsSection
-              metal="silver" icon="🥈" title="Silver Coins"
-              weights={SILVER_WEIGHTS} rows={rows}`
-);
+// Find and fix lines 898-910
+for (let i = 895; i < 915; i++) {
+  if (lines[i] && lines[i].includes('tabLabel2')) {
+    lines.splice(i, 1); // remove the tabLabel2 line
+    console.log('✓ Removed tabLabel2 at line', i+1);
+    break;
+  }
+}
 
-// Also fix the parent flex container to use full width on mobile
-c = c.replace(
-  `        <div style={{
-          display: "flex",
-          flexDirection: mobile ? "column" : "row",
-          gap: 14, marginBottom: 14,
-          alignItems: "flex-start",
-        }}>`,
-  `        <div style={{
-          display: "flex",
-          flexDirection: mobile ? "column" : "row",
-          gap: 14, marginBottom: 14,
-          alignItems: "flex-start",
-          width: "100%",
-        }}>`
-);
-
+c = lines.join('\n');
 fs.writeFileSync('src/App.jsx', c, 'utf8');
-console.log('✓ Done');
+console.log('Done');

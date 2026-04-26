@@ -896,24 +896,22 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
 /* BAR PRODUCT PAGE — /bars/gold-bars/1oz                                    */
 /* ══════════════════════════════════════════════════════════════════════════ */
 function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
-  const { barTab, size } = useParams();
+  const { metal, barType, size } = useParams();
   const navigate = useNavigate();
   const mobile   = useIsMobile();
 
-  // Determine metal and bar type from tab slug
-  const metal   = barTab === "silver-bars" ? "silver" : "gold";
-  const barType = barTab === "minted-bars" ? "minted" : "cast";
+
   const spot    = metal === "gold" ? goldSpot : silverSpot;
 
   // Parse size — e.g. "1oz" → weight_oz=1, "1g" → weight_g=1
   const isGram    = size.endsWith("g");
   const sizeNum   = parseFloat(size);
-  const tabLabel  = barTab.split("-").map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
+  const tabLabel  = (barType === "cast" ? "Cast" : "Minted") + " " + (metal === "gold" ? "Gold" : "Silver") + " Bars";
 
   const dealers = rows
     .filter(r => {
       if (r.metal !== metal || r.category !== "bar") return false;
-      if (barTab !== "minted-bars" && r.bar_type !== barType) return false;
+      if (r.bar_type !== barType) return false;
       if (isGram) return Math.abs((r.weight_g || 0) - sizeNum) < 0.01;
       return Math.abs((r.weight_oz || 0) - sizeNum) < 0.001;
     })
@@ -1486,7 +1484,7 @@ function AppInner() {
       <Route path="/silver" element={<HomePage {...sharedProps} defaultMetal="silver" />} />
       <Route path="/bars" element={<HomePage {...sharedProps} defaultSection="bars" />} />
       <Route path="/dealers" element={<DealersPage {...sharedProps} />} />
-      <Route path="/bars/:barTab/:size" element={<BarProductPage {...sharedProps} />} />
+      <Route path="/bars/:metal/:barType/:size" element={<BarProductPage {...sharedProps} />} />
       <Route path="/sell" element={<SellPage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
       <Route path="/magazine" element={<MagazinePage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
     </Routes>
