@@ -499,14 +499,14 @@ function BarsSection({ rows }) {
       </div>
 
       {/* Filter tabs */}
-      <div style={{ display: "flex", gap: 5, padding: "0 14px 8px", overflowX: "auto", borderBottom: `1px solid ${BORDER}` }}>
+      <div style={{ display: "flex", gap: 4, padding: "0 8px 8px", overflowX: "auto", borderBottom: `1px solid ${BORDER}` }}>
         {TABS.map(t => (
           <button key={t} onClick={() => setTab(t)} style={{
             background: tab === t ? NAVY : "#fff",
             color: tab === t ? "#fff" : SLATE,
             border: `1px solid ${tab === t ? NAVY : BORDER}`,
-            borderRadius: 5, padding: "4px 10px",
-            fontSize: 11, fontWeight: tab === t ? 600 : 400,
+            borderRadius: 5, padding: "3px 7px",
+            fontSize: 10, fontWeight: tab === t ? 600 : 400,
             cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap",
           }}>{t}</button>
         ))}
@@ -518,7 +518,7 @@ function BarsSection({ rows }) {
         : sortedGroups.map((g, i) => (
             <div key={g.size}
               onClick={() => navigate(`/bars/${metal}/${barType}/${g.size}`)}
-              style={{ display: "flex", alignItems: "center", minHeight: 44, padding: "0 14px", gap: 10, background: i % 2 === 0 ? "#fff" : "#FAFBFC", borderBottom: `1px solid ${BORDER}`, cursor: "pointer" }}>
+              style={{ display: "flex", alignItems: "center", minHeight: 44, padding: "0 10px", gap: 6, background: i % 2 === 0 ? "#fff" : "#FAFBFC", borderBottom: `1px solid ${BORDER}`, cursor: "pointer" }}>
               
               {/* Size label */}
               <span style={{ fontSize: 12, color: MUTED, width: 44, flexShrink: 0 }}>{g.size}</span>
@@ -1310,14 +1310,16 @@ function HomePage({ rows, goldSpot, silverSpot, updated }) {
   });
 
   return (
-    <div style={{ minHeight: "100vh", background: BG }}>
+    <div style={{ minHeight: "100vh", background: BG, overflowX: "hidden" }}>
       <Header goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />
       <MagazineCarousel />
 
       {/* Content */}
       <div style={{
         maxWidth: 1100, margin: "0 auto",
-        padding: mobile ? "14px 8px 48px" : "20px 24px 60px",
+        padding: mobile ? "10px 6px 48px" : "20px 24px 60px",
+        overflowX: "hidden",
+        boxSizing: "border-box",
       }}>
 
         {/* 3 tables side by side on desktop */}
@@ -1327,8 +1329,9 @@ function HomePage({ rows, goldSpot, silverSpot, updated }) {
           gap: 14, marginBottom: 14,
           alignItems: "flex-start",
           width: "100%",
+          overflow: "hidden",
         }}>
-          <div style={{ flex: "1 1 0", minWidth: 0 }}>
+          <div style={{ flex: "1 1 0", minWidth: 0, width: "100%" }}>
             <CoinsSection
               metal="gold" icon="🪙" title="Gold Coins"
               weights={GOLD_WEIGHTS} rows={rows}

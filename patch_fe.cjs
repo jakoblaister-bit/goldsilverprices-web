@@ -2,15 +2,17 @@ const fs = require('fs');
 let c = fs.readFileSync('src/App.jsx', 'utf8');
 const lines = c.split('\n');
 
-// Find and fix lines 898-910
-for (let i = 895; i < 915; i++) {
-  if (lines[i] && lines[i].includes('tabLabel2')) {
-    lines.splice(i, 1); // remove the tabLabel2 line
-    console.log('✓ Removed tabLabel2 at line', i+1);
-    break;
-  }
-}
+// Line 1332 (index 1331) needs to close the style and add }}>
+lines[1331] = '          overflow: "hidden",\n        }}>';
 
-c = lines.join('\n');
-fs.writeFileSync('src/App.jsx', c, 'utf8');
-console.log('Done');
+// Remove the extra </div> at line 1339
+// After fix line numbers shift by 1
+// Find and remove the double </div>
+const joined = lines.join('\n');
+const fixed = joined.replace(
+  '          </div>\n          </div>\n          <div style={{ flex: "1 1 0", minWidth: 0, width: "100%" }}>',
+  '          </div>\n          <div style={{ flex: "1 1 0", minWidth: 0, width: "100%" }}>'
+);
+
+fs.writeFileSync('src/App.jsx', fixed, 'utf8');
+console.log('✓ Done');
