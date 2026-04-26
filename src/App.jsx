@@ -1323,15 +1323,6 @@ function AppInner() {
 
     setRows(latest);
 
-    const kangaroos = latest
-      .filter(r => r.coin_type === "Kangaroo" && r.metal === "gold" && r.weight_oz === 1)
-      .sort((a, b) => a.buy_price - b.buy_price);
-    if (kangaroos.length > 0) setGoldSpot(Math.round(kangaroos[0].buy_price / 1.013));
-
-    const silver = latest
-      .filter(r => r.coin_type === "Kangaroo" && r.metal === "silver" && r.weight_oz === 1)
-      .sort((a, b) => a.buy_price - b.buy_price);
-    if (silver.length > 0) setSilverSpot(Math.round(silver[0].buy_price / 1.04));
 
     setUpdated(new Date(data[0].scraped_at).toLocaleString("en-AU", {
       timeZone: "Australia/Sydney",

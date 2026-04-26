@@ -1,66 +1,21 @@
 const fs = require('fs');
 let c = fs.readFileSync('src/App.jsx', 'utf8');
 
-// Replace fetchSpot with cached version + fix call order
-c = c.replace(
-  /async function fetchSpot\(\) \{[\s\S]*?\n  \}/,
-  `async function fetchSpot() {
-    // Check 1-minute cache first
-    try {
-      const cached = sessionStorage.getItem('spot_cache');
-      if (cached) {
-        const { gold, silver, ts } = JSON.parse(cached);
-        if (Date.now() - ts < 60000) {
-          if (gold)   setGoldSpot(gold);
-          if (silver) setSilverSpot(silver);
-          return;
-        }
-      }
-    } catch {}
+// Find and remove any remaining setGoldSpot derivation from kangaroo prices
+const before = c.length;
 
-    try {
-      const [goldRes, silverRes] = await Promise.all([
-        fetch("https://api.gold-api.com/price/XAU/AUD"),
-        fetch("https://api.gold-api.com/price/XAG/AUD"),
-      ]);
-      const gold   = await goldRes.json();
-      const silver = await silverRes.json();
+// Remove the derivation block — find it precisely
+const marker1 = 'const kangaroos = latest';
+const marker2 = 'if (silver.length > 0) setSilverSpot';
+const end2     = c.indexOf('\n', c.indexOf(marker2)) + 1;
+const start1   = c.lastIndexOf('\n', c.indexOf(marker1)) + 1;
 
-      const goldPrice   = gold?.price   && gold.price   > 5000 ? Math.round(gold.price)                  : null;
-      const silverPrice = silver?.price && silver.price > 80   ? Math.round(silver.price * 100) / 100    : null;
+if (c.includes(marker1)) {
+  c = c.slice(0, start1) + c.slice(end2);
+  console.log('✓ Derivation block removed');
+} else {
+  console.log('✓ Already clean');
+}
 
-      if (goldPrice)   setGoldSpot(goldPrice);
-      if (silverPrice) setSilverSpot(silverPrice);
-
-      // Cache for 1 minute
-      if (goldPrice && silverPrice) {
-        sessionStorage.setItem('spot_cache', JSON.stringify({
-          gold: goldPrice, silver: silverPrice, ts: Date.now()
-        }));
-      }
-    } catch(e) {
-      console.log("Spot fetch failed:", e.message);
-    }
-  }`
-);
-
-// Fix call order — fetch spot first, then data, sequentially
-c = c.replace(
-  `    fetchData().then(() => fetchSpot());`,
-  `    fetchSpot().then(() => fetchData());`
-);
-
-// Remove TradingView attribution if still there
-c = c.replace(
-  /\s*\{!mobile && \(\s*<a\s+href="https:\/\/www\.tradingview\.com"[\s\S]*?<\/a>\s*\)\}/,
-  ''
-);
-
-// Show dash while loading instead of null
-c = c.replace(
-  `{s.price ? fmt(s.price) : "—"}`,
-  `{s.price ? fmt(s.price) : "—"}`
-);
-
+console.log('Verify:', c.includes('kangaroos[0].buy_price') ? '✗ STILL THERE' : '✓ GONE');
 fs.writeFileSync('src/App.jsx', c, 'utf8');
-console.log('✓ Done — verify removed:', !c.includes('kangaroos[0].buy_price'));
