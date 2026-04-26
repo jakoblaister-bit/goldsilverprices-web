@@ -1319,7 +1319,7 @@ function HomePage({ rows, goldSpot, silverSpot, updated }) {
       {/* Content */}
       <div style={{
         maxWidth: 1100, margin: "0 auto",
-        padding: mobile ? "14px 10px 48px" : "20px 24px 60px",
+        padding: mobile ? "14px 8px 48px" : "20px 24px 60px",
       }}>
 
         {/* 3 tables side by side on desktop */}
@@ -1328,6 +1328,7 @@ function HomePage({ rows, goldSpot, silverSpot, updated }) {
           flexDirection: mobile ? "column" : "row",
           gap: 14, marginBottom: 14,
           alignItems: "flex-start",
+          width: "100%",
         }}>
           <div style={{ flex: "1 1 0", minWidth: 0 }}>
             <CoinsSection
@@ -1335,7 +1336,7 @@ function HomePage({ rows, goldSpot, silverSpot, updated }) {
               weights={GOLD_WEIGHTS} rows={rows}
             />
           </div>
-          <div style={{ flex: "1 1 0", minWidth: 0 }}>
+          <div style={{ flex: "1 1 0", minWidth: 0, width: "100%" }}>
             <CoinsSection
               metal="silver" icon="🥈" title="Silver Coins"
               weights={SILVER_WEIGHTS} rows={rows}
