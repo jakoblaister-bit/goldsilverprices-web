@@ -157,20 +157,7 @@ const COIN_INFO = {
 };
 
 
-const COIN_INFO = {
-  "Kangaroo":      { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "1986" },
-  "Kookaburra":    { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "1990" },
-  "Koala":         { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "1987" },
-  "Lunar":         { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "1996" },
-  "Emu":           { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "2018" },
-  "Swan":          { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "2017" },
-  "Maple Leaf":    { country: "Canada",    mint: "Royal Canadian", fineness: "999.9/1000", since: "1979" },
-  "Krugerrand":    { country: "S. Africa", mint: "SA Mint",       fineness: "916.7/1000", since: "1967" },
-  "Britannia":     { country: "UK",        mint: "Royal Mint",    fineness: "999.9/1000", since: "2013" },
-  "Philharmonic":  { country: "Austria",   mint: "Austrian Mint", fineness: "999.9/1000", since: "1989" },
-  "American Eagle":{ country: "USA",       mint: "US Mint",       fineness: "916.7/1000", since: "1986" },
-  "Buffalo":       { country: "USA",       mint: "US Mint",       fineness: "999.9/1000", since: "2006" },
-};
+
 
 /* ── Top spot bar ─────────────────────────────────────────────────────────── */
 function TopBar({ goldSpot, silverSpot, goldChange, silverChange }) {
@@ -624,9 +611,46 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
         <h1 style={{ fontSize: mobile ? 20 : 26, fontWeight: 700, color: NAVY, marginBottom: 4, fontFamily: "'Inter',system-ui,sans-serif" }}>
           {weightDisplay} {coinTypeDisplay}
         </h1>
-        <p style={{ fontSize: 12, color: MUTED, marginBottom: 20 }}>
+        <p style={{ fontSize: 12, color: MUTED, marginBottom: 16 }}>
           {dealers.length} dealers compared · Prices updated twice daily · Not financial advice
         </p>
+
+        {/* Coin info */}
+        {COIN_INFO[coinTypeDisplay] && (
+          <div style={{ background: "#fff", borderRadius: 10, border: `1px solid ${BORDER}`, padding: "14px 16px", marginBottom: 16, display: "flex", gap: 20, flexWrap: "wrap" }}>
+            {[
+              { label: "Country",  val: COIN_INFO[coinTypeDisplay].country },
+              { label: "Mint",     val: COIN_INFO[coinTypeDisplay].mint },
+              { label: "Fineness", val: COIN_INFO[coinTypeDisplay].fineness },
+              { label: "Since",    val: COIN_INFO[coinTypeDisplay].since },
+              { label: "Metal",    val: metal === "gold" ? "Gold" : "Silver" },
+              { label: "Weight",   val: weightDisplay },
+            ].map(item => (
+              <div key={item.label}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 2 }}>{item.label}</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: NAVY }}>{item.val}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Weight pills */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+          {(metal === "gold" ? GOLD_WEIGHTS : SILVER_WEIGHTS).map(w => (
+            <button key={w}
+              onClick={() => navigate(`/${metal}/coin/${coinType}/${slugify(w)}`)}
+              style={{
+                background: slugify(w) === weight ? NAVY : "#fff",
+                color: slugify(w) === weight ? "#fff" : SLATE,
+                border: `1px solid ${slugify(w) === weight ? NAVY : BORDER}`,
+                borderRadius: 5, padding: "5px 14px",
+                fontSize: 12, fontWeight: slugify(w) === weight ? 600 : 400,
+                cursor: "pointer", fontFamily: "inherit",
+              }}>
+              {w}
+            </button>
+          ))}
+        </div>
 
         {/* Summary cards */}
         {dealers.length > 1 && (
@@ -907,7 +931,19 @@ function HomePage({ rows, goldSpot, silverSpot, updated }) {
         </div>
 
         {/* Bars full width */}
-        <BarsSection rows={rows} />
+
+        
+        {!mobile && <BarsSection rows={rows} />}
+
+        {/* TradingView Chart */}
+        <div style={{ background: "#fff", borderRadius: 10, marginBottom: 14 }}>
+          <div style={{ padding: "10px 14px", background: "#F8FAFC" }}>
+            <span>Gold Price AUD — Live Chart</span>
+          </div>
+          <iframe src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUAUD&interval=D&style=1&theme=light&locale=en"
+            style={{ width: "100%", height: 350, border: "none", display: "block" }}
+            allowTransparency="true" scrolling="no" />
+        </div>
 
         <TrustStrip />
 
