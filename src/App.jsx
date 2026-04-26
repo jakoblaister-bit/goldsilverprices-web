@@ -414,7 +414,7 @@ function CoinsSection({ metal, icon, title, weights, rows }) {
                 weightLabel={weight}
                 cheapest={cheapest}
                 i={i}
-                onClick={() => navigate(`/${metal}/coin/${slugify(type)}/${slugify(weight)}`)}
+                onClick={() => navigate(`/${metal}/coin/${slugify(type)}`)}
               />
             ))
       }
@@ -447,7 +447,7 @@ function BarRow({ sizeLabel, cheapest, brand, i, onClick }) {
       onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#FAFBFC"}
     >
       <span style={{ fontSize: 11, color: MUTED, minWidth: 44, flexShrink: 0 }}>{sizeLabel}</span>
-      <span style={{ flex: 1, fontSize: 13, color: "#1E293B", textAlign: "left", paddingLeft: 8 }}>{brand || "Gold Bar"}</span>
+      <span style={{ flex: 1, fontSize: 13, color: "#1E293B", textAlign: "left", paddingLeft: 8 }}>{brand || (tab === "Silver Bars" ? "Silver Bar" : "Gold Bar")}</span>
       <span style={{ fontSize: 10, color: MUTED, marginRight: 4 }}>from</span>
       <span style={{ fontSize: 13, fontWeight: 600, color: NAVY, whiteSpace: "nowrap" }}>
         {fmt(cheapest.buy_price)}
@@ -562,17 +562,21 @@ function Footer() {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════ */
-/* PRODUCT PAGE                                                               */
+/* PRODUCT PAGE — /gold/coin/kangaroo                                         */
 /* ══════════════════════════════════════════════════════════════════════════ */
 function ProductPage({ rows, goldSpot, silverSpot, updated }) {
-  const { metal, coinType, weight } = useParams();
+  const { metal, coinType } = useParams();
   const navigate = useNavigate();
   const mobile   = useIsMobile();
 
   const coinTypeDisplay = rows.find(r => slugify(r.coin_type || "") === coinType)?.coin_type || coinType;
-  const weightDisplay   = Object.keys(WEIGHT_TO_OZ).find(w => slugify(w) === weight) || weight;
-  const targetOz        = WEIGHT_TO_OZ[weightDisplay] || 1;
-  const spot            = metal === "gold" ? goldSpot : silverSpot;
+  const spot = metal === "gold" ? goldSpot : silverSpot;
+  const weights = metal === "gold" ? GOLD_WEIGHTS : SILVER_WEIGHTS;
+
+  // Default to 1oz
+  const [selWeight, setSelWeight] = useState("1 oz");
+
+  const targetOz = WEIGHT_TO_OZ[selWeight] || 1;
 
   const dealers = rows
     .filter(r =>
@@ -583,9 +587,25 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
     )
     .sort((a, b) => a.buy_price - b.buy_price);
 
+  // Find all available weights for this coin
+  const availableWeights = weights.filter(w => {
+    const oz = WEIGHT_TO_OZ[w];
+    return rows.some(r =>
+      r.metal === metal &&
+      r.category === "coin" &&
+      slugify(r.coin_type || "") === coinType &&
+      Math.abs((r.weight_oz || 0) - oz) < 0.001
+    );
+  });
+
   const lowest  = dealers[0]?.buy_price;
   const highest = dealers[dealers.length - 1]?.buy_price;
   const saving  = highest && lowest ? highest - lowest : 0;
+
+  useSEO({
+    title: `${coinTypeDisplay} Gold Coin Price Australia | GoldSilverPrices.com.au`,
+    description: `Compare ${coinTypeDisplay} prices from Australian bullion dealers. Find the cheapest price updated twice daily.`,
+  });
 
   const premColor = (p) =>
     p === null ? MUTED : p < 2 ? GREEN : p < 4 ? AMBER : "#DC2626";
@@ -604,27 +624,31 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
             {metal === "gold" ? "Gold Coins" : "Silver Coins"}
           </span>
           <span>›</span>
-          <span style={{ color: SLATE }}>{coinTypeDisplay} {weightDisplay}</span>
+          <span style={{ color: SLATE }}>{coinTypeDisplay}</span>
         </div>
 
         {/* Title */}
         <h1 style={{ fontSize: mobile ? 20 : 26, fontWeight: 700, color: NAVY, marginBottom: 4, fontFamily: "'Inter',system-ui,sans-serif" }}>
-          {weightDisplay} {coinTypeDisplay}
+          {coinTypeDisplay} {metal === "gold" ? "Gold" : "Silver"} Coin
         </h1>
         <p style={{ fontSize: 12, color: MUTED, marginBottom: 16 }}>
-          {dealers.length} dealers compared · Prices updated twice daily · Not financial advice
+          Compare prices from Australian dealers · Updated twice daily · Not financial advice
         </p>
 
-        {/* Coin info */}
+        {/* Coin info — NO weight here */}
         {COIN_INFO[coinTypeDisplay] && (
-          <div style={{ background: "#fff", borderRadius: 10, border: `1px solid ${BORDER}`, padding: "14px 16px", marginBottom: 16, display: "flex", gap: 20, flexWrap: "wrap" }}>
+          <div style={{
+            background: "#fff", borderRadius: 10,
+            border: `1px solid ${BORDER}`,
+            padding: "14px 16px", marginBottom: 16,
+            display: "flex", gap: 20, flexWrap: "wrap",
+          }}>
             {[
               { label: "Country",  val: COIN_INFO[coinTypeDisplay].country },
               { label: "Mint",     val: COIN_INFO[coinTypeDisplay].mint },
               { label: "Fineness", val: COIN_INFO[coinTypeDisplay].fineness },
               { label: "Since",    val: COIN_INFO[coinTypeDisplay].since },
               { label: "Metal",    val: metal === "gold" ? "Gold" : "Silver" },
-              { label: "Weight",   val: weightDisplay },
             ].map(item => (
               <div key={item.label}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 2 }}>{item.label}</div>
@@ -634,58 +658,72 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
           </div>
         )}
 
-        {/* Weight pills */}
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
-          {(metal === "gold" ? GOLD_WEIGHTS : SILVER_WEIGHTS).map(w => (
-            <button key={w}
-              onClick={() => navigate(`/${metal}/coin/${coinType}/${slugify(w)}`)}
-              style={{
-                background: slugify(w) === weight ? NAVY : "#fff",
-                color: slugify(w) === weight ? "#fff" : SLATE,
-                border: `1px solid ${slugify(w) === weight ? NAVY : BORDER}`,
-                borderRadius: 5, padding: "5px 14px",
-                fontSize: 12, fontWeight: slugify(w) === weight ? 600 : 400,
-                cursor: "pointer", fontFamily: "inherit",
-              }}>
-              {w}
-            </button>
-          ))}
-        </div>
-
         {/* Summary cards */}
         {dealers.length > 1 && (
           <div style={{
             display: "grid",
             gridTemplateColumns: mobile ? "1fr 1fr" : "repeat(3,1fr)",
-            gap: 10, marginBottom: 20,
+            gap: 10, marginBottom: 16,
           }}>
             {[
-              { label: "Cheapest",     val: lowest,   color: GREEN,      sub: dealers[0]?.dealer },
-              { label: "Most Exp.",    val: highest,  color: "#DC2626",  sub: dealers[dealers.length-1]?.dealer },
-              { label: "You Save",     val: saving,   color: AMBER,      sub: "by choosing wisely" },
+              { label: "Cheapest",  val: lowest,  color: GREEN,      sub: dealers[0]?.dealer },
+              { label: "Most Exp.", val: highest, color: "#DC2626",  sub: dealers[dealers.length-1]?.dealer },
+              { label: "You Save",  val: saving,  color: AMBER,      sub: "by choosing wisely" },
             ].map(s => (
               <div key={s.label} style={{
                 background: "#fff", borderRadius: 8,
                 border: `1px solid ${BORDER}`,
                 padding: "12px 14px", textAlign: "center",
               }}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>
-                  {s.label}
-                </div>
-                <div style={{ fontSize: mobile ? 17 : 21, fontWeight: 700, color: s.color, fontFamily: "'Inter',system-ui,sans-serif" }}>
-                  {fmt(s.val)}
-                </div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 4 }}>{s.label}</div>
+                <div style={{ fontSize: mobile ? 17 : 21, fontWeight: 700, color: s.color, fontFamily: "'Inter',system-ui,sans-serif" }}>{fmt(s.val)}</div>
                 <div style={{ fontSize: 10, color: MUTED, marginTop: 2 }}>{s.sub}</div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Dealer table */}
+        {/* Dealer table with weight pills in header */}
         <Card>
-          <SHead icon={metal === "gold" ? "🪙" : "🥈"} title={`${coinTypeDisplay} · ${weightDisplay}`} subtitle={`${dealers.length} dealers`} />
+          <SHead
+            icon={metal === "gold" ? "🪙" : "🥈"}
+            title={coinTypeDisplay}
+            subtitle={`${dealers.length} dealers`}
+          />
 
-          {/* Column header */}
+          {/* Weight pills inside card header area */}
+          <div style={{
+            display: "flex", gap: 5, padding: "8px 14px",
+            background: "#fff", borderBottom: `1px solid ${BORDER}`,
+            overflowX: "auto",
+          }}>
+            {availableWeights.length > 0
+              ? availableWeights.map(w => (
+                  <button key={w} onClick={() => setSelWeight(w)} style={{
+                    background: selWeight === w ? NAVY : "#fff",
+                    color: selWeight === w ? "#fff" : SLATE,
+                    border: `1px solid ${selWeight === w ? NAVY : BORDER}`,
+                    borderRadius: 5, padding: "4px 12px",
+                    fontSize: 12, fontWeight: selWeight === w ? 600 : 400,
+                    cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit",
+                    minHeight: 32,
+                  }}>{w}</button>
+                ))
+              : weights.map(w => (
+                  <button key={w} onClick={() => setSelWeight(w)} style={{
+                    background: selWeight === w ? NAVY : "#fff",
+                    color: selWeight === w ? "#fff" : SLATE,
+                    border: `1px solid ${selWeight === w ? NAVY : BORDER}`,
+                    borderRadius: 5, padding: "4px 12px",
+                    fontSize: 12, fontWeight: selWeight === w ? 600 : 400,
+                    cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit",
+                    minHeight: 32,
+                  }}>{w}</button>
+                ))
+            }
+          </div>
+
+          {/* Col header */}
           <div style={{
             display: "grid",
             gridTemplateColumns: mobile ? "1fr auto auto" : "1fr 80px auto auto",
@@ -701,7 +739,7 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
           </div>
 
           {dealers.length === 0
-            ? <div style={{ padding: "24px 14px", textAlign: "center", color: MUTED, fontSize: 13 }}>No data yet for this weight</div>
+            ? <div style={{ padding: "24px 14px", textAlign: "center", color: MUTED, fontSize: 13 }}>No data for {selWeight}</div>
             : dealers.map((r, i) => {
                 const p = spot > 0 ? ((r.buy_price / spot - 1) * 100) : null;
                 const isLowest = i === 0;
@@ -716,7 +754,6 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
                     borderBottom: `1px solid ${BORDER}`,
                     borderLeft: isLowest ? `3px solid ${GREEN}` : "3px solid transparent",
                     textDecoration: "none",
-                    transition: "background .1s",
                   }}>
                     <div>
                       <span style={{ fontSize: 13, color: "#1E293B", fontWeight: isLowest ? 600 : 400 }}>
@@ -731,10 +768,7 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
                       )}
                     </div>
                     {!mobile && (
-                      <span style={{
-                        fontSize: 12, fontWeight: 500, textAlign: "right",
-                        color: premColor(p),
-                      }}>
+                      <span style={{ fontSize: 12, fontWeight: 500, textAlign: "right", color: premColor(p) }}>
                         {p !== null ? `+${p.toFixed(2)}%` : "—"}
                       </span>
                     )}
@@ -780,7 +814,7 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
           )}
         </Card>
 
-        {/* What is premium */}
+        {/* Premium explainer */}
         <div style={{
           margin: "14px 0", padding: "10px 14px",
           background: "#EFF6FF", borderRadius: 8,
@@ -791,232 +825,9 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
           Green (under 2%) = excellent · Amber (2–4%) = typical · Red (over 4%) = high.
         </div>
 
-        {/* Other weights */}
-        <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: SLATE, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-            Other sizes
-          </div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {(metal === "gold" ? GOLD_WEIGHTS : SILVER_WEIGHTS)
-              .filter(w => slugify(w) !== weight)
-              .map(w => (
-                <button key={w} onClick={() => navigate(`/${metal}/coin/${coinType}/${slugify(w)}`)} style={{
-                  background: "#fff", border: `1px solid ${BORDER}`,
-                  borderRadius: 5, padding: "5px 12px",
-                  fontSize: 12, color: SLATE,
-                  cursor: "pointer", fontFamily: "inherit",
-                }}>
-                  {w}
-                </button>
-              ))
-            }
-          </div>
-        </div>
-
         <p style={{ textAlign: "center", fontSize: 11, color: MUTED, lineHeight: 1.7 }}>
           ⚠️ Prices indicative only. Always confirm with dealer before purchase. Not financial advice.
         </p>
-      </div>
-      <Footer />
-    </div>
-  );
-}
-
-/* ── Magazine Carousel — gold.de style ───────────────────────────────────── */
-function MagazineCarousel() {
-  const mobile = useIsMobile();
-  const [active, setActive] = useState(0);
-  const navigate = useNavigate();
-
-  const slides = [
-    { img: "https://images.unsplash.com/photo-1610375461246-83df859d849d?w=800&q=80", headline: "Gold hits new AUD record as dollar weakens", sub: "Compare prices now →" },
-    { img: "https://images.unsplash.com/photo-1624365168968-f283d506c6b6?w=800&q=80", headline: "Why Australians are buying silver in 2026", sub: "View silver prices →" },
-    { img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80", headline: "Perth Mint reports record bullion demand Q1 2026", sub: "Read more →" },
-    { img: "https://images.unsplash.com/photo-1504805572947-34fad45aed93?w=800&q=80", headline: "What is the gold premium and why it matters", sub: "Learn more →" },
-    { img: "https://images.unsplash.com/photo-1559526324-593bc073d938?w=800&q=80", headline: "How to store your gold safely in Australia", sub: "Storage guide →" },
-    { img: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800&q=80", headline: "Silver premiums at historic lows — is now the time?", sub: "Compare silver →" },
-    { img: "https://images.unsplash.com/photo-1642790551116-18a150d78e8a?w=800&q=80", headline: "Is gold a good investment in 2026?", sub: "Read the analysis →" },
-    { img: "https://images.unsplash.com/photo-1618044733300-9472054094ee?w=800&q=80", headline: "Top 5 mistakes new gold investors make", sub: "Investor guide →" },
-    { img: "https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=800&q=80", headline: "How the RBA rate decision affects gold prices", sub: "Market update →" },
-    { img: "https://images.unsplash.com/photo-1565514020179-026b92b84bb6?w=800&q=80", headline: "Buying gold online vs in store — which is better?", sub: "Compare dealers →" },
-  ];
-
-  const perPage = mobile ? 1 : 2;
-  const total   = Math.ceil(slides.length / perPage);
-
-  useEffect(() => {
-    const t = setInterval(() => setActive(a => (a + 1) % total), 6000);
-    return () => clearInterval(t);
-  }, [mobile, total]);
-
-  const prev = () => setActive(a => (a - 1 + total) % total);
-  const next = () => setActive(a => (a + 1) % total);
-  const visible = slides.slice(active * perPage, active * perPage + perPage);
-
-  const SlideCard = ({ slide }) => (
-    <div onClick={() => navigate("/magazine")} style={{
-      flex: 1, position: "relative", overflow: "hidden",
-      borderRadius: mobile ? 6 : 8, cursor: "pointer", minWidth: 0,
-    }}>
-      <img src={slide.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)" }} />
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: mobile ? "12px 12px" : "14px 14px" }}>
-        <div style={{ fontSize: mobile ? 13 : 14, fontWeight: 700, color: "#fff", lineHeight: 1.35, fontFamily: "'Inter',system-ui,sans-serif", marginBottom: 4 }}>
-          {slide.headline}
-        </div>
-        <div style={{ fontSize: 11, color: "#E2C97E", fontWeight: 500, fontFamily: "'Inter',system-ui,sans-serif" }}>
-          {slide.sub}
-        </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <div style={{ background: "transparent", padding: mobile ? "10px 10px 0" : "12px 24px 0" }}>
-      <div style={{ display: "flex", height: mobile ? 180 : 200, gap: mobile ? 0 : 10, overflow: "hidden" }}>
-        {visible.map((slide, i) => <SlideCard key={active * perPage + i} slide={slide} />)}
-      </div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0 0" }}>
-        <button onClick={prev} style={{ background: "none", border: "none", color: "#94A3B8", fontSize: 20, cursor: "pointer", padding: "8px 12px", lineHeight: 1, fontFamily: "inherit", minHeight: 40, minWidth: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>‹</button>
-        <div style={{ display: "flex", gap: 7, alignItems: "center" }}>
-          {Array.from({ length: total }).map((_, i) => (
-            <div key={i} onClick={() => setActive(i)} style={{
-              width: i === active ? 20 : 8, height: 8, borderRadius: i === active ? 4 : "50%",
-              background: i === active ? "#1B3A5C" : "#CBD5E1",
-              cursor: "pointer", transition: "all .25s ease", minWidth: 8,
-            }} />
-          ))}
-        </div>
-        <button onClick={next} style={{ background: "none", border: "none", color: "#94A3B8", fontSize: 20, cursor: "pointer", padding: "8px 12px", lineHeight: 1, fontFamily: "inherit", minHeight: 40, minWidth: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>›</button>
-      </div>
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* HOMEPAGE                                                                   */
-/* ══════════════════════════════════════════════════════════════════════════ */
-function HomePage({ rows, goldSpot, silverSpot, updated }) {
-  const mobile = useIsMobile();
-
-  return (
-    <div style={{ minHeight: "100vh", background: BG }}>
-      <Header goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />
-
-
-
-      
-      <MagazineCarousel />
-
-      {/* Content */}
-      <div style={{
-        maxWidth: 1100, margin: "0 auto",
-        padding: mobile ? "14px 10px 48px" : "20px 24px 60px",
-      }}>
-
-        {/* Coins side by side on desktop */}
-        <div style={{
-          display: "flex",
-          flexDirection: mobile ? "column" : "row",
-          gap: 14, marginBottom: 14,
-        }}>
-          <CoinsSection
-            metal="gold" icon="🪙" title="Gold Coins"
-            weights={GOLD_WEIGHTS} rows={rows}
-          />
-          <CoinsSection
-            metal="silver" icon="🥈" title="Silver Coins"
-            weights={SILVER_WEIGHTS} rows={rows}
-          />
-        </div>
-
-        {/* Bars full width */}
-
-        
-        {!mobile && <BarsSection rows={rows} />}
-
-        {/* TradingView Chart */}
-        <div style={{ background: "#fff", borderRadius: 10, marginBottom: 14 }}>
-          <div style={{ padding: "10px 14px", background: "#F8FAFC" }}>
-            <span>Gold Price AUD — Live Chart</span>
-          </div>
-          <iframe src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUAUD&interval=D&style=1&theme=light&locale=en"
-            style={{ width: "100%", height: 350, border: "none", display: "block" }}
-            allowTransparency="true" scrolling="no" />
-        </div>
-
-        <TrustStrip />
-
-        <p style={{
-          textAlign: "center", fontSize: 11, color: MUTED,
-          lineHeight: 1.7, marginTop: 20,
-          padding: mobile ? "0 8px" : 0,
-        }}>
-          ⚠️ Prices indicative only. Always confirm with dealer before purchase.
-          GoldSilverPrices.com.au is independent. Not financial advice.
-        </p>
-      </div>
-      <Footer />
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* SELL PAGE — placeholder                                                    */
-/* ══════════════════════════════════════════════════════════════════════════ */
-function SellPage({ goldSpot, silverSpot, updated }) {
-  const mobile = useIsMobile();
-  const navigate = useNavigate();
-  return (
-    <div style={{ minHeight: "100vh", background: BG }}>
-      <Header goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: mobile ? "40px 16px" : "80px 24px", textAlign: "center" }}>
-        <div style={{ fontSize: 40, marginBottom: 16 }}>💰</div>
-        <h1 style={{ fontFamily: "'Inter',system-ui,sans-serif", fontSize: mobile ? 22 : 30, fontWeight: 700, color: NAVY, marginBottom: 12 }}>
-          Sell Your Bullion
-        </h1>
-        <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.8, marginBottom: 24 }}>
-          Compare buyback prices from all 8 Australian dealers and get the best price when selling your gold and silver. Coming soon.
-        </p>
-        <button onClick={() => navigate("/")} style={{
-          background: NAVY, color: "#fff", border: "none",
-          borderRadius: 8, padding: "10px 24px",
-          fontSize: 13, fontWeight: 600, cursor: "pointer",
-          fontFamily: "inherit",
-        }}>
-          Back to Compare →
-        </button>
-      </div>
-      <Footer />
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════════════════ */
-/* MAGAZINE PAGE — placeholder                                                */
-/* ══════════════════════════════════════════════════════════════════════════ */
-function MagazinePage({ goldSpot, silverSpot, updated }) {
-  const mobile = useIsMobile();
-  const navigate = useNavigate();
-  return (
-    <div style={{ minHeight: "100vh", background: BG }}>
-      <Header goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: mobile ? "40px 16px" : "80px 24px", textAlign: "center" }}>
-        <div style={{ fontSize: 40, marginBottom: 16 }}>📰</div>
-        <h1 style={{ fontFamily: "'Inter',system-ui,sans-serif", fontSize: mobile ? 22 : 30, fontWeight: 700, color: NAVY, marginBottom: 12 }}>
-          Gold & Silver Magazine
-        </h1>
-        <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.8, marginBottom: 24 }}>
-          Market analysis, investment guides, and the latest news from the Australian bullion market. Coming soon.
-        </p>
-        <button onClick={() => navigate("/")} style={{
-          background: NAVY, color: "#fff", border: "none",
-          borderRadius: 8, padding: "10px 24px",
-          fontSize: 13, fontWeight: 600, cursor: "pointer",
-          fontFamily: "inherit",
-        }}>
-          Back to Compare →
-        </button>
       </div>
       <Footer />
     </div>
@@ -1316,6 +1127,100 @@ function DealersPage({ rows, goldSpot, silverSpot, updated }) {
   );
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* HOMEPAGE                                                                   */
+/* ══════════════════════════════════════════════════════════════════════════ */
+function HomePage({ rows, goldSpot, silverSpot, updated }) {
+  const mobile = useIsMobile();
+
+  useSEO({
+    title: "Compare Gold & Silver Prices Australia | GoldSilverPrices.com.au",
+    description: "Compare live gold and silver bullion prices from 8 Australian dealers. Find the cheapest gold coins, silver coins and gold bars. Updated twice daily.",
+  });
+
+  return (
+    <div style={{ minHeight: "100vh", background: BG }}>
+      <Header goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />
+      <MagazineCarousel />
+
+      {/* Content */}
+      <div style={{
+        maxWidth: 1100, margin: "0 auto",
+        padding: mobile ? "14px 10px 48px" : "20px 24px 60px",
+      }}>
+
+        {/* 3 tables side by side on desktop */}
+        <div style={{
+          display: "flex",
+          flexDirection: mobile ? "column" : "row",
+          gap: 14, marginBottom: 14,
+          alignItems: "flex-start",
+        }}>
+          <div style={{ flex: "1 1 0", minWidth: 0 }}>
+            <CoinsSection
+              metal="gold" icon="🪙" title="Gold Coins"
+              weights={GOLD_WEIGHTS} rows={rows}
+            />
+          </div>
+          <div style={{ flex: "1 1 0", minWidth: 0 }}>
+            <CoinsSection
+              metal="silver" icon="🥈" title="Silver Coins"
+              weights={SILVER_WEIGHTS} rows={rows}
+            />
+          </div>
+          {!mobile && (
+            <div style={{ flex: "1 1 0", minWidth: 0 }}>
+              <BarsSection rows={rows} />
+            </div>
+          )}
+        </div>
+
+        {mobile && <div style={{ marginBottom: 14 }}><BarsSection rows={rows} /></div>}
+
+        {/* TradingView Chart */}
+        <div style={{
+          background: "#fff", borderRadius: 10,
+          border: `1px solid ${BORDER}`,
+          overflow: "hidden",
+          boxShadow: "0 1px 3px rgba(0,0,0,.04)",
+          marginBottom: 14,
+        }}>
+          <div style={{
+            padding: "10px 14px", background: "#F8FAFC",
+            borderBottom: `1px solid ${BORDER}`,
+            display: "flex", alignItems: "center",
+            justifyContent: "space-between",
+          }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: SLATE, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              Gold Price AUD — Live Chart
+            </span>
+            <span style={{ fontSize: 10, color: MUTED }}>Powered by TradingView</span>
+          </div>
+          <iframe
+            src="https://s.tradingview.com/widgetembed/?symbol=OANDA%3AXAUAUD&interval=D&hidesidetoolbar=1&hidetoptoolbar=0&style=1&theme=light&timezone=Australia%2FSydney&withdateranges=1&locale=en"
+            style={{ width: "100%", height: mobile ? 250 : 350, border: "none", display: "block" }}
+            allowTransparency="true"
+            scrolling="no"
+          />
+        </div>
+
+        <TrustStrip />
+
+        <p style={{
+          textAlign: "center", fontSize: 11, color: MUTED,
+          lineHeight: 1.7, marginTop: 20,
+          padding: mobile ? "0 8px" : 0,
+        }}>
+          ⚠️ Prices indicative only. Always confirm with dealer before purchase.
+          GoldSilverPrices.com.au is independent. Not financial advice.
+        </p>
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════════════════════════ */
 /* ROOT APP                                                                   */
 /* ══════════════════════════════════════════════════════════════════════════ */
@@ -1403,7 +1308,7 @@ function AppInner() {
   return (
     <Routes>
       <Route path="/" element={<HomePage {...sharedProps} />} />
-      <Route path="/:metal/coin/:coinType/:weight" element={<ProductPage {...sharedProps} />} />
+      <Route path="/:metal/coin/:coinType" element={<ProductPage {...sharedProps} />} />
       <Route path="/gold" element={<HomePage {...sharedProps} defaultMetal="gold" />} />
       <Route path="/silver" element={<HomePage {...sharedProps} defaultMetal="silver" />} />
       <Route path="/bars" element={<HomePage {...sharedProps} defaultSection="bars" />} />
