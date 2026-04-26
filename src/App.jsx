@@ -551,10 +551,6 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
   const mobile   = useIsMobile();
 
   const coinTypeDisplay = rows.find(r => slugify(r.coin_type || "") === coinType)?.coin_type || coinType;
-  useSEO({
-    title: `${weightDisplay} ${coinTypeDisplay} Price Australia | GoldSilverPrices.com.au`,
-    description: `Compare ${weightDisplay} ${coinTypeDisplay} prices from ${dealers.length} Australian bullion dealers. Find the cheapest price updated twice daily.`,
-  });
   const weightDisplay   = Object.keys(WEIGHT_TO_OZ).find(w => slugify(w) === weight) || weight;
   const targetOz        = WEIGHT_TO_OZ[weightDisplay] || 1;
   const spot            = metal === "gold" ? goldSpot : silverSpot;
