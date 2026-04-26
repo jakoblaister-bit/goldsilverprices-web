@@ -5,27 +5,22 @@ c = c.replace(
   /async function fetchSpot\(\) \{[\s\S]*?\n  \}/,
   `async function fetchSpot() {
     try {
-      const [metalRes, fxRes] = await Promise.all([
-        fetch("https://api.metals.live/v1/spot/gold,silver"),
-        fetch("https://api.frankfurter.app/latest?from=USD&to=AUD"),
+      // Yahoo Finance — XAUAUD and XAGAUD direct
+      const [goldRes, silverRes] = await Promise.all([
+        fetch("https://query1.finance.yahoo.com/v8/finance/chart/XAUAUD=X?interval=1d&range=1d"),
+        fetch("https://query1.finance.yahoo.com/v8/finance/chart/XAGAUD=X?interval=1d&range=1d"),
       ]);
-      const metals = await metalRes.json();
-      const fx     = await fxRes.json();
-      const aud    = fx?.rates?.AUD;
-      const goldUSD   = metals?.find?.(m => m.gold)?.gold;
-      const silverUSD = metals?.find?.(m => m.silver)?.silver;
-      if (aud && goldUSD)   setGoldSpot(Math.round(goldUSD * aud));
-      if (aud && silverUSD) setSilverSpot(Math.round(silverUSD * aud * 100) / 100);
+      const goldData   = await goldRes.json();
+      const silverData = await silverRes.json();
+      const goldPrice   = goldData?.chart?.result?.[0]?.meta?.regularMarketPrice;
+      const silverPrice = silverData?.chart?.result?.[0]?.meta?.regularMarketPrice;
+      if (goldPrice)   setGoldSpot(Math.round(goldPrice));
+      if (silverPrice) setSilverSpot(Math.round(silverPrice * 100) / 100);
     } catch(e) {
       console.log("Spot fetch failed:", e.message);
     }
   }`
 );
 
-// Make sure fetchSpot is called on load
-if (!c.includes('fetchSpot()')) {
-  c = c.replace('    fetchData();', '    fetchSpot();\n    fetchData();');
-}
-
 fs.writeFileSync('src/App.jsx', c, 'utf8');
-console.log('✓ Done');
+console.log('✓ Yahoo Finance spot prices');
