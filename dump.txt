@@ -1,18 +1,8 @@
-const SlideCard = ({ slide }) => (
-    <div onClick={() => navigate("/magazine")} style={{ flex: 1, position: "relative", overflow: "hidden", borderRadius: mobile ? 6 : 8, cursor: "pointer", minWidth: 0 }}>
-      <img src={slide.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.1) 55%, transparent 100%)" }} />
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: mobile ? "12px" : "14px" }}>
-        <div style={{ fontSize: mobile ? 13 : 14, fontWeight: 700, color: "#fff", lineHeight: 1.35, fontFamily: "'Inter',system-ui,sans-serif", marginBottom: 4 }}>{slide.headline}</div>
-        <div style={{ fontSize: 11, color: "#E2C97E", fontWeight: 500 }}>{slide.sub}</div>
-      </div>
-    </div>
-  );
-
+function StaticPage({ title, children }) {
+  const mobile   = useIsMobile();
+  const navigate = useNavigate();
   return (
-    <div style={{ background: "transparent", padding: mobile ? "10px 10px 0" : "12px 24px 0" }}>
-      <div style={{ display: "flex", height: mobile ? 180 : 200, gap: mobile ? 0 : 10, overflow: "hidden" }}>
-        {visible.map((slide, i) => <SlideCard key={active * perPage + i} slide={slide} />)}
-      </div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0 0" }}>
-        <button onClick={prev} style={{ background: "none", border: "none", color: "#94A3B8", fontSize: 20, cursor: "pointer", padding: "8p
+    <div style={{ minHeight:"100vh", background:BG }}>
+      <Header goldSpot={goldSpot} silverSpot={silverSpot} />
+      <div style={{ maxWidth:740, margin:"0 auto", padding: mobile ? "28px 16px 60px" : "40px 24px 60px" }}>
+        <div style={{ fontSize:11, color:MUTED, margi

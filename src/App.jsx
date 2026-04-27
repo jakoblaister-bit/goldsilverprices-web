@@ -611,15 +611,59 @@ function TrustStrip() {
 
 /* ── Footer ───────────────────────────────────────────────────────────────── */
 function Footer() {
-  const mobile = useIsMobile();
+  const mobile   = useIsMobile();
+  const navigate = useNavigate();
+  const COMPARE  = [["Gold Coins","/gold/coins"],["Silver Coins","/silver/coins"],["Gold Bars","/gold/bars"],["Silver Bars","/silver/bars"],["Dealers","/dealers"]];
+  const LEGAL    = [["About","/about"],["Privacy Policy","/privacy"],["Contact","/contact"],["Disclaimer","/disclaimer"]];
+  const link = (l) => (
+    <div key={l[0]} onClick={()=>navigate(l[1])} style={{ fontSize:12, color:"#94A3B8", marginBottom:7, cursor:"pointer" }}
+      onMouseEnter={function(e){e.currentTarget.style.color="#E2C97E";}}
+      onMouseLeave={function(e){e.currentTarget.style.color="#94A3B8";}}>{l[0]}</div>
+  );
   return (
-    <footer style={{ background: NAVY, padding: mobile ? "20px 14px" : "20px 32px" }}>
-      <div style={{ fontFamily: "'Inter',system-ui,sans-serif", fontSize: 13, fontWeight: 700, color: "#E2C97E", marginBottom: 6 }}>
-        GoldSilverPrices.com.au
-      </div>
-      <div style={{ fontSize: 10, color: "#64748B", lineHeight: 1.8 }}>
-        © 2026 goldsilverprices.com.au · Independent bullion comparison · Not financial advice
-        <br />Prices updated twice daily · Data sourced from dealer websites
+    <footer style={{ background:NAVY, padding: mobile ? "32px 20px 24px" : "48px 64px 32px" }}>
+      <div style={{ maxWidth:1100, margin:"0 auto" }}>
+        {mobile ? (
+          <>
+            <div style={{ display:"flex", justifyContent:"center", gap:64, marginBottom:28 }}>
+              <div>
+                <div style={{ fontSize:10, fontWeight:700, color:"#64748B", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:12 }}>Compare</div>
+                {COMPARE.map(link)}
+              </div>
+              <div>
+                <div style={{ fontSize:10, fontWeight:700, color:"#64748B", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:12 }}>Legal</div>
+                {LEGAL.map(link)}
+              </div>
+            </div>
+            <div style={{ borderTop:"1px solid #1E3A5F", paddingTop:16, textAlign:"center" }}>
+              <div style={{ fontFamily:"'Inter',system-ui,sans-serif", fontSize:13, fontWeight:700, color:"#E2C97E", marginBottom:4 }}>GoldSilverPrices.com.au</div>
+              <div style={{ fontSize:10, color:"#475569" }}>{"© 2026 · Independent bullion comparison · Not financial advice"}</div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:40 }}>
+              <div style={{ maxWidth:260 }}>
+                <div style={{ fontFamily:"'Inter',system-ui,sans-serif", fontSize:15, fontWeight:700, color:"#E2C97E", marginBottom:10 }}>GoldSilverPrices.com.au</div>
+                <div style={{ fontSize:12, color:"#64748B", lineHeight:1.75 }}>Independent bullion price comparison for Australian investors. Updated twice daily. Not financial advice.</div>
+              </div>
+              <div style={{ display:"flex", gap:80 }}>
+                <div>
+                  <div style={{ fontSize:10, fontWeight:700, color:"#64748B", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:14 }}>Compare</div>
+                  {COMPARE.map(link)}
+                </div>
+                <div>
+                  <div style={{ fontSize:10, fontWeight:700, color:"#64748B", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:14 }}>Legal</div>
+                  {LEGAL.map(link)}
+                </div>
+              </div>
+            </div>
+            <div style={{ borderTop:"1px solid #1E3A5F", paddingTop:20, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div style={{ fontSize:11, color:"#475569" }}>{"© 2026 GoldSilverPrices.com.au · All rights reserved"}</div>
+              <div style={{ fontSize:11, color:"#475569" }}>{"Prices updated twice daily · Not financial advice"}</div>
+            </div>
+          </>
+        )}
       </div>
     </footer>
   );
@@ -911,7 +955,6 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
           ⚠️ Prices indicative only. Always confirm with dealer before purchase. Not financial advice.
         </p>
       </div>
-      <Footer />
     </div>
   );
 }
@@ -1114,7 +1157,6 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
           ⚠️ Prices indicative only. Always confirm with dealer before purchase. Not financial advice.
         </p>
       </div>
-      <Footer />
     </div>
   );
 }
@@ -1141,7 +1183,6 @@ function SellPage({ goldSpot, silverSpot, updated }) {
           Back to Compare →
         </button>
       </div>
-      <Footer />
     </div>
   );
 }
@@ -1239,20 +1280,19 @@ function MagazinePage({ goldSpot, silverSpot, updated }) {
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 55%)" }} />
                   <div style={{ position: "absolute", top: 10, left: 12, display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ fontSize: 9, fontWeight: 700, background: tc.bg, color: tc.color, padding: "2px 8px", borderRadius: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>{a.tag}</span>
-                    <span style={{ fontSize: 10, color: "rgba(255,255,255,0.9)" }}>{a.readMin} min read</span>
+                    <span style={{ fontSize: 10, color: "#fff", background: "rgba(0,0,0,0.45)", padding: "2px 8px", borderRadius: 10, fontWeight: 500 }}>{a.readMin} min read</span>
                   </div>
                 </div>
                 <div style={{ padding: "14px 16px 18px" }}>
-                  <h2 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 8px", lineHeight: 1.4, fontFamily: "'Inter',system-ui,sans-serif" }}>{a.title}</h2>
-                  <p style={{ fontSize: 12, color: SLATE, lineHeight: 1.7, margin: "0 0 14px" }}>{a.excerpt}</p>
-                  <span style={{ fontSize: 12, color: NAVY, fontWeight: 600 }}>Read article →</span>
+                  <h2 style={{ fontSize: 14, fontWeight: 700, color: NAVY, margin: "0 0 8px", lineHeight: 1.4, fontFamily: "'Inter',system-ui,sans-serif", textAlign:"left" }}>{a.title}</h2>
+                  <p style={{ fontSize: 12, color: SLATE, lineHeight: 1.7, margin: "0 0 14px", textAlign:"left" }}>{a.excerpt}</p>
+                  <span style={{ fontSize: 12, color: NAVY, fontWeight: 600, display:"block", textAlign:"left" }}>Read article →</span>
                 </div>
               </div>
             );
           })}
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
@@ -1528,7 +1568,6 @@ function DealerPage({ goldSpot, silverSpot, updated }) {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
@@ -1624,7 +1663,6 @@ function DealersPage({ rows, goldSpot, silverSpot, updated }) {
           <strong>Independent comparison:</strong> GoldSilverPrices.com.au is not affiliated with any dealer. We never accept payment for placement. Prices are scraped twice daily directly from each dealer's website.
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
@@ -1778,7 +1816,6 @@ function HomePage({ rows, goldSpot, silverSpot, updated }) {
           GoldSilverPrices.com.au is independent. Not financial advice.
         </p>
       </div>
-      <Footer />
     </div>
   );
 }
@@ -2004,6 +2041,156 @@ function ArticlePage({ goldSpot, silverSpot, updated }) {
   );
 }
 
+
+function StaticPage({ title, children, goldSpot, silverSpot }) {
+  const mobile   = useIsMobile();
+  const navigate = useNavigate();
+  return (
+    <div style={{ minHeight:"100vh", background:BG }}>
+      <Header goldSpot={goldSpot || null} silverSpot={silverSpot || null} />
+      <div style={{ maxWidth:740, margin:"0 auto", padding: mobile ? "28px 16px 60px" : "40px 24px 60px" }}>
+        <div style={{ fontSize:11, color:MUTED, marginBottom:16, display:"flex", gap:5 }}>
+          <span onClick={() => navigate("/")} style={{ cursor:"pointer", color:NAVY }}>Home</span>
+          <span>{"›"}</span>
+          <span style={{ color:SLATE }}>{title}</span>
+        </div>
+        <h1 style={{ fontSize: mobile?22:28, fontWeight:700, color:NAVY, margin:"0 0 24px", fontFamily:"'Inter',system-ui,sans-serif" }}>{title}</h1>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Section({ h, children }) {
+  return (
+    <div style={{ background:"#fff", borderRadius:10, border:"1px solid "+BORDER, padding:"20px 22px", marginBottom:16 }}>
+      {h && <h2 style={{ fontSize:14, fontWeight:700, color:NAVY, margin:"0 0 10px", fontFamily:"'Inter',system-ui,sans-serif" }}>{h}</h2>}
+      {children}
+    </div>
+  );
+}
+
+function P({ children }) {
+  return <p style={{ fontSize:13, color:SLATE, lineHeight:1.85, margin:"0 0 10px" }}>{children}</p>;
+}
+
+function AboutPage() {
+  return (
+    <StaticPage title="About GoldSilverPrices.com.au">
+      <Section h="What we do">
+        <P>GoldSilverPrices.com.au is an independent price comparison service for Australian bullion buyers. We track buy prices from major Australian dealers twice daily so you can find the lowest premium without visiting multiple websites.</P>
+        <P>We cover gold and silver coins, cast bars, and minted bars from dealers including Ainslie Bullion, ABC Bullion, Perth Mint, KJC, Jaggards, Swan Bullion, and Guardian Gold.</P>
+      </Section>
+      <Section h="How it works">
+        <P>Our scraper collects prices directly from dealer websites twice daily. Prices are stored in our database and displayed on the comparison tables within minutes of collection.</P>
+        <P>We show the lowest available buy price for each product and calculate the premium over spot so you can make an informed decision quickly.</P>
+      </Section>
+      <Section h="Independence">
+        <P>We are not affiliated with any dealer. We do not accept payment for placement or rankings. Dealers are listed because they are reputable Australian businesses — not because they pay us.</P>
+        <P>If a dealer's prices are consistently high, they will appear lower in the rankings. That is the point.</P>
+      </Section>
+      <Section h="Contact">
+        <P>{"Questions or feedback? Reach us at hello@goldsilverprices.com.au"}</P>
+      </Section>
+    </StaticPage>
+  );
+}
+
+function PrivacyPage() {
+  return (
+    <StaticPage title="Privacy Policy">
+      <Section>
+        <P>Last updated: April 2026</P>
+      </Section>
+      <Section h="What we collect">
+        <P>We do not require registration or login. We do not collect personal information from visitors browsing the site.</P>
+        <P>If you contact us by email, we retain your email address and message content only to respond to your enquiry.</P>
+      </Section>
+      <Section h="Cookies and analytics">
+        <P>We use anonymous analytics to understand how the site is used — pages visited, device type, and general location (country/state level). No personally identifiable data is collected.</P>
+        <P>We do not use advertising cookies or sell data to third parties.</P>
+      </Section>
+      <Section h="Third party services">
+        <P>Spot price data is fetched from a public gold price API. Dealer prices are scraped from publicly accessible dealer websites. No personal data is shared with these services.</P>
+      </Section>
+      <Section h="Data retention">
+        <P>Price data is retained indefinitely for historical comparison. Contact emails are deleted once resolved. Analytics data is retained for 12 months.</P>
+      </Section>
+      <Section h="Contact">
+        <P>{"Privacy questions: hello@goldsilverprices.com.au"}</P>
+      </Section>
+    </StaticPage>
+  );
+}
+
+function ContactPage({ goldSpot, silverSpot }) {
+  const [sent, setSent] = useState(false);
+  const [form, setForm] = useState({ name:"", email:"", message:"" });
+  function handleSubmit() {
+    if (!form.name || !form.email || !form.message) return;
+    setSent(true);
+  }
+  const inp = { width:"100%", fontSize:13, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, background:"#fff", boxSizing:"border-box", outline:"none" };
+  return (
+    <StaticPage goldSpot={goldSpot} silverSpot={silverSpot} title="Contact">
+      <Section h="Get in touch">
+        <P>{"We'd love to hear from you — whether it's a missing dealer, a data error, or general feedback."}</P>
+        <P>{"Email: hello@goldsilverprices.com.au"}</P>
+      </Section>
+      {sent ? (
+        <Section>
+          <div style={{ textAlign:"center", padding:"20px 0" }}>
+            <div style={{ fontSize:32, marginBottom:10 }}>✅</div>
+            <div style={{ fontSize:14, fontWeight:600, color:NAVY, marginBottom:6 }}>Message sent!</div>
+            <div style={{ fontSize:13, color:MUTED }}>{"We'll get back to you within 1-2 business days."}</div>
+          </div>
+        </Section>
+      ) : (
+        <Section h="Send a message">
+          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+            <div>
+              <div style={{ fontSize:11, fontWeight:600, color:MUTED, marginBottom:4 }}>Name</div>
+              <input style={inp} value={form.name} onChange={function(e){setForm(function(f){return{...f,name:e.target.value};});}} placeholder="Your name" />
+            </div>
+            <div>
+              <div style={{ fontSize:11, fontWeight:600, color:MUTED, marginBottom:4 }}>Email</div>
+              <input style={inp} type="email" value={form.email} onChange={function(e){setForm(function(f){return{...f,email:e.target.value};});}} placeholder="your@email.com" />
+            </div>
+            <div>
+              <div style={{ fontSize:11, fontWeight:600, color:MUTED, marginBottom:4 }}>Message</div>
+              <textarea style={{...inp, minHeight:120, resize:"vertical"}} value={form.message} onChange={function(e){setForm(function(f){return{...f,message:e.target.value};});}} placeholder="Your message..." />
+            </div>
+            <button onClick={handleSubmit} style={{ background:NAVY, color:"#fff", border:"none", borderRadius:8, padding:"10px 24px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"inherit", alignSelf:"flex-start" }}>
+              Send message →
+            </button>
+          </div>
+        </Section>
+      )}
+    </StaticPage>
+  );
+}
+
+function DisclaimerPage() {
+  return (
+    <StaticPage title="Disclaimer">
+      <Section h="Not financial advice">
+        <P>The information on GoldSilverPrices.com.au is for informational purposes only. Nothing on this site constitutes financial advice, investment advice, or a recommendation to buy or sell any asset.</P>
+        <P>Precious metals prices are volatile. Past performance does not guarantee future results. Always do your own research before making any investment decision.</P>
+      </Section>
+      <Section h="Price accuracy">
+        <P>We make every effort to display accurate prices. However, dealer prices can change at any time. Always verify the current price directly with the dealer before purchasing.</P>
+        <P>We are not responsible for discrepancies between prices shown on this site and prices charged by dealers at the time of purchase.</P>
+      </Section>
+      <Section h="Dealer relationships">
+        <P>We are not affiliated with, endorsed by, or responsible for the actions of any dealer listed on this site. Transactions are between you and the dealer directly.</P>
+      </Section>
+      <Section h="Limitation of liability">
+        <P>To the maximum extent permitted by Australian law, GoldSilverPrices.com.au accepts no liability for any loss or damage arising from use of this site or reliance on information displayed here.</P>
+      </Section>
+    </StaticPage>
+  );
+}
+
 function AppInner() {
   const [rows, setRows]             = useState([]);
   const [updated, setUpdated]       = useState(null);
@@ -2086,6 +2273,7 @@ function AppInner() {
   const sharedProps = { rows, goldSpot, silverSpot, updated };
 
   return (
+    <>
     <Routes>
       <Route path="/" element={<HomePage {...sharedProps} />} />
       <Route path="/:metal/coin/:coinType" element={<ProductPage {...sharedProps} />} />
@@ -2101,8 +2289,14 @@ function AppInner() {
               <Route path="/silver/bars"   element={<ProductRegistryPage metal="silver" category="bar"  goldSpot={goldSpot} silverSpot={silverSpot} />} />
               <Route path="/sell" element={<SellPage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
       <Route path="/magazine/:slug" element={<ArticlePage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
+              <Route path="/about"      element={<AboutPage />} />
+              <Route path="/privacy"    element={<PrivacyPage />} />
+              <Route path="/contact"    element={<ContactPage />} />
+              <Route path="/disclaimer" element={<DisclaimerPage />} />
               <Route path="/magazine" element={<MagazinePage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
     </Routes>
+    <Footer />
+    </>
   );
 }
 
