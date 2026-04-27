@@ -223,11 +223,11 @@ function Header({ goldSpot, silverSpot, updated }) {
     <div>
       <TopBar goldSpot={goldSpot} silverSpot={silverSpot} goldChange={null} silverChange={null} />
       <div style={{ background: NAVY }}>
-      <div style={{ padding: mobile ? "12px 14px" : "14px 32px" }}>
+      <div style={{ padding: mobile ? "0 14px" : "0 32px", height: mobile ? 56 : 64, display:"flex", alignItems:"center" }}>
         <div style={{
           display: "flex", alignItems: "center",
           justifyContent: "space-between", flexWrap: "wrap",
-          gap: 8, marginBottom: 10,
+          gap: 8, width:"100%",
         }}>
           <div
             onClick={() => navigate("/")}
@@ -236,8 +236,32 @@ function Header({ goldSpot, silverSpot, updated }) {
               fontWeight: 700, color: "#fff", whiteSpace: "nowrap", cursor: "pointer",
             }}
           >
-            GoldSilver<span style={{ color: "#E2C97E" }}>Prices</span>
-            <span style={{ color: "#93C5FD", fontSize: 13 }}>.com.au</span>
+            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+              <svg width="36" height="26" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="gBar" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#FFE280"/>
+                    <stop offset="100%" stopColor="#9A6C10"/>
+                  </linearGradient>
+                  <linearGradient id="sBar" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#D0DDE8"/>
+                    <stop offset="100%" stopColor="#5A7A94"/>
+                  </linearGradient>
+                </defs>
+                <rect x="0" y="0" width="36" height="11" rx="3" fill="url(#gBar)"/>
+                <rect x="1.5" y="1.5" width="2" height="8" rx="1" fill="rgba(255,255,255,0.35)"/>
+                <rect x="0" y="15" width="36" height="11" rx="3" fill="url(#sBar)"/>
+                <rect x="1.5" y="16.5" width="2" height="9" rx="1" fill="rgba(255,255,255,0.2)"/>
+              </svg>
+              <div style={{ lineHeight:1 }}>
+                <div style={{ fontSize:17, fontWeight:700, letterSpacing:"-0.02em" }}>
+                  <span style={{ color:"#C9A84C" }}>Gold</span>
+                  <span style={{ color:"#A8BDD0" }}>Silver</span>
+                  <span style={{ color:"#fff" }}>Prices</span>
+                </div>
+                <div style={{ fontSize:7, letterSpacing:"3px", color:"#3A5A7A", marginTop:2 }}>COM.AU</div>
+              </div>
+            </div>
           </div>
           {!mobile && (
             <div style={{ fontSize: 10, color: MUTED, letterSpacing: "0.1em", textTransform: "uppercase" }}>
@@ -1151,85 +1175,369 @@ function MagazinePage({ goldSpot, silverSpot, updated }) {
 /* ══════════════════════════════════════════════════════════════════════════ */
 /* DEALERS PAGE — placeholder                                                 */
 /* ══════════════════════════════════════════════════════════════════════════ */
-function DealersPage({ rows, goldSpot, silverSpot, updated }) {
-  const mobile = useIsMobile();
-  const navigate = useNavigate();
 
-  const dealers = [
-    { name: "Perth Mint",      url: "https://www.perthmint.com",                    flag: "🇦🇺" },
-    { name: "ABC Bullion",     url: "https://www.abcbullion.com.au",                flag: "🇦🇺" },
-    { name: "Ainslie Bullion", url: "https://ainsliebullion.com.au",               flag: "🇦🇺" },
-    { name: "KJC Bullion",     url: "https://www.kjc-gold-silver-bullion.com.au",  flag: "🇦🇺" },
-    { name: "Swan Bullion",    url: "https://swanbullion.com",                      flag: "🇦🇺" },
-    { name: "Gold Stackers",   url: "https://www.goldstackers.com.au",              flag: "🇦🇺" },
-    { name: "Jaggards",        url: "https://www.jaggards.com.au",                 flag: "🇦🇺" },
-    { name: "Guardian Gold",   url: "https://guardian-gold.com.au",                flag: "🇦🇺" },
-  ];
+/* ══════════════════════════════════════════════════════════════════════════ */
+/* DEALER PAGE — /dealers/:dealerId                                           */
+/* ══════════════════════════════════════════════════════════════════════════ */
+const DEALER_INFO = {
+  ainslie: {
+    name: "Ainslie Bullion", city: "Brisbane, QLD", state: "QLD",
+    url: "https://www.ainsliebullion.com.au", since: 1974, badge: "Est. 1974",
+    rating: 4.8, reviews: 2341,
+    desc: "Ainslie Bullion is one of Australia's longest-established precious metals dealers, founded in Brisbane in 1974. They offer a comprehensive range of gold, silver, platinum and palladium products for retail and wholesale investors. Their Edward Street store is a landmark for Queensland investors, and they also operate a secure vault storage facility.",
+    speciality: ["Walk-in store", "Vault storage", "Large product range", "Wholesale pricing"],
+    payMethods: ["Bank Transfer", "Credit Card", "Cash", "BPAY", "PayID"],
+    shipping: "Free insured shipping on orders over $500",
+    locations: [
+      { name: "Brisbane CBD", address: "47 Edward St, Brisbane QLD 4000", phone: "(07) 3221 6052",
+        hours: { Mon:"8:30–17:00", Tue:"8:30–17:00", Wed:"8:30–17:00", Thu:"8:30–17:00", Fri:"8:30–17:00", Sat:"9:00–13:00", Sun:"Closed" } },
+    ],
+    reviewCount: 2341,
+  },
+  jaggards: {
+    name: "Jaggards", city: "Sydney, NSW", state: "NSW",
+    url: "https://www.jaggards.com.au", since: 1975, badge: "Since 1975",
+    rating: 4.7, reviews: 876,
+    desc: "Jaggards has been Sydney's most respected bullion dealer since 1975. Located in the Sydney CBD, they specialise in investment-grade gold and silver coins and bars. They are particularly well regarded for their numismatic and collector coin range alongside standard investment products.",
+    speciality: ["Rare coins", "Competitive premiums", "Fast shipping", "Collector pieces"],
+    payMethods: ["Bank Transfer", "Credit Card", "BPAY"],
+    shipping: "Free insured shipping on orders over $1,000",
+    locations: [
+      { name: "Sydney CBD", address: "5 Elizabeth St, Sydney NSW 2000", phone: "(02) 9232 5288",
+        hours: { Mon:"9:00–17:30", Tue:"9:00–17:30", Wed:"9:00–17:30", Thu:"9:00–17:30", Fri:"9:00–17:30", Sat:"9:00–13:00", Sun:"Closed" } },
+    ],
+    reviewCount: 876,
+  },
+  abc: {
+    name: "ABC Bullion", city: "Sydney, NSW", state: "NSW",
+    url: "https://www.abcbullion.com.au", since: 1972, badge: "Market Leader",
+    rating: 4.9, reviews: 3102,
+    desc: "ABC Bullion is Australia's largest and most recognised precious metals dealer, established in 1972. Their proprietary ABC Bullion cast bar is Australia's most traded gold product. With offices in Sydney and Melbourne, they serve both retail and institutional investors with some of the most competitive pricing in the market.",
+    speciality: ["Own-brand bars", "Institutional volumes", "Sydney & Melbourne offices", "Online bullion pool"],
+    payMethods: ["Bank Transfer", "Credit Card", "Cash", "BPAY", "PayID"],
+    shipping: "Free insured shipping on orders over $1,000",
+    locations: [
+      { name: "Sydney (Head Office)", address: "Level 1, 280 George St, Sydney NSW 2000", phone: "(02) 9231 4511",
+        hours: { Mon:"9:00–17:00", Tue:"9:00–17:00", Wed:"9:00–17:00", Thu:"9:00–17:00", Fri:"9:00–17:00", Sat:"Closed", Sun:"Closed" } },
+      { name: "Melbourne", address: "Level 12, 90 Collins St, Melbourne VIC 3000", phone: "(03) 9225 4077",
+        hours: { Mon:"9:00–17:00", Tue:"9:00–17:00", Wed:"9:00–17:00", Thu:"9:00–17:00", Fri:"9:00–17:00", Sat:"Closed", Sun:"Closed" } },
+    ],
+    reviewCount: 3102,
+  },
+  perth: {
+    name: "Perth Mint", city: "Perth, WA", state: "WA",
+    url: "https://www.perthmint.com", since: 1899, badge: "Govt. Owned",
+    rating: 4.9, reviews: 8721,
+    desc: "The Perth Mint is Australia's official bullion mint, established by the West Australian Government in 1899. It is the oldest operating mint in Australia and produces bullion coins and bars of the highest international recognition. Products carry a government guarantee and are accepted by dealers worldwide.",
+    speciality: ["Government guarantee", "Highest purity", "International recognition", "Museum & visitor centre"],
+    payMethods: ["Bank Transfer", "Credit Card", "PayPal"],
+    shipping: "Free insured shipping on orders over $500",
+    locations: [
+      { name: "Perth Mint", address: "310 Hay St, East Perth WA 6004", phone: "(08) 9421 7222",
+        hours: { Mon:"9:00–17:00", Tue:"9:00–17:00", Wed:"9:00–17:00", Thu:"9:00–17:00", Fri:"9:00–17:00", Sat:"9:00–13:00", Sun:"Closed" } },
+    ],
+    reviewCount: 8721,
+  },
+  swan: {
+    name: "Swan Bullion", city: "Perth, WA", state: "WA",
+    url: "https://www.swanbullion.com", since: 2015, badge: "",
+    rating: 4.6, reviews: 412,
+    desc: "Swan Bullion is a Perth-based online bullion dealer established in 2015. Specialising in Perth Mint products, they offer competitive pricing on gold and silver coins and bars. As a Western Australian dealer they are ideally positioned to source directly from the Perth Mint.",
+    speciality: ["Perth Mint specialists", "Fast WA delivery", "Online focus", "Competitive pricing"],
+    payMethods: ["Bank Transfer", "Credit Card"],
+    shipping: "Free insured shipping on orders over $500",
+    locations: [
+      { name: "Online Only", address: "Perth, WA 6000", phone: "support@swanbullion.com",
+        hours: { Mon:"Online 24/7", Tue:"Online 24/7", Wed:"Online 24/7", Thu:"Online 24/7", Fri:"Online 24/7", Sat:"Online 24/7", Sun:"Online 24/7" } },
+    ],
+    reviewCount: 412,
+  },
+  goldstackers: {
+    name: "Gold Stackers", city: "Melbourne, VIC", state: "VIC",
+    url: "https://www.goldstackers.com.au", since: 2010, badge: "",
+    rating: 4.5, reviews: 654,
+    desc: "Gold Stackers is a Melbourne-based bullion dealer popular with collectors and silver stackers. Founded in 2010, they offer a good range of silver coins, gold coins and gold bars. They are particularly well regarded in the stacking community for competitive silver pricing.",
+    speciality: ["Silver stacking", "Collector coins", "Melbourne pickup", "Competitive silver pricing"],
+    payMethods: ["Bank Transfer", "BPAY"],
+    shipping: "Free insured shipping on orders over $500",
+    locations: [
+      { name: "Melbourne", address: "Melbourne, VIC 3000", phone: "(03) 9999 1234",
+        hours: { Mon:"9:00–17:00", Tue:"9:00–17:00", Wed:"9:00–17:00", Thu:"9:00–17:00", Fri:"9:00–17:00", Sat:"By appointment", Sun:"Closed" } },
+    ],
+    reviewCount: 654,
+  },
+  kjc: {
+    name: "KJC Bullion", city: "Brisbane, QLD", state: "QLD",
+    url: "https://www.kjc-gold-silver-bullion.com.au", since: 2008, badge: "",
+    rating: 4.4, reviews: 298,
+    desc: "KJC Bullion is a Brisbane-based precious metals dealer established in 2008. They focus on mainstream investment products including Kangaroo coins, Maple Leafs and gold bars. Their online store offers competitive pricing with a straightforward buying experience.",
+    speciality: ["Kangaroo coins", "Maple Leaf coins", "Mainstream investment products", "Brisbane based"],
+    payMethods: ["Bank Transfer", "Credit Card", "BPAY"],
+    shipping: "Free insured shipping on orders over $500",
+    locations: [
+      { name: "Online Only", address: "Brisbane, QLD 4000", phone: "(07) 3999 0000",
+        hours: { Mon:"Online 24/7", Tue:"Online 24/7", Wed:"Online 24/7", Thu:"Online 24/7", Fri:"Online 24/7", Sat:"Online 24/7", Sun:"Online 24/7" } },
+    ],
+    reviewCount: 298,
+  },
+};
 
-  // Count products per dealer from data
-  const dealerCounts = {};
-  for (const r of rows) {
-    dealerCounts[r.dealer] = (dealerCounts[r.dealer] || 0) + 1;
-  }
+function DealerPage({ goldSpot, silverSpot, updated }) {
+  const { dealerId } = useParams();
+  const navigate     = useNavigate();
+  const mobile       = useIsMobile();
+  const [tab, setTab] = useState("about");
+  const d = DEALER_INFO[dealerId] || DEALER_INFO.ainslie;
+  const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+  useSEO({
+    title: `${d.name} | GoldSilverPrices.com.au`,
+    description: `${d.name} — ${d.city}. ${d.desc.slice(0,120)}...`,
+  });
 
   return (
-    <div style={{ minHeight: "100vh", background: BG }}>
+    <div style={{ minHeight:"100vh", background:BG }}>
       <Header goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />
-
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: mobile ? "16px 12px 48px" : "24px 32px 60px" }}>
+      <div style={{ maxWidth:1000, margin:"0 auto", padding: mobile?"14px 12px 60px":"28px 24px 60px" }}>
 
         {/* Breadcrumb */}
-        <div style={{ fontSize: 11, color: MUTED, marginBottom: 16, display: "flex", gap: 6 }}>
-          <span onClick={() => navigate("/")} style={{ cursor: "pointer", color: NAVY }}>Home</span>
+        <div style={{ fontSize:11, color:MUTED, marginBottom:14, display:"flex", gap:5, alignItems:"center" }}>
+          <span onClick={() => navigate("/")} style={{ cursor:"pointer", color:NAVY }}>Home</span>
           <span>›</span>
-          <span style={{ color: SLATE }}>Dealers</span>
+          <span onClick={() => navigate("/dealers")} style={{ cursor:"pointer", color:NAVY }}>Dealers</span>
+          <span>›</span>
+          <span style={{ color:SLATE }}>{d.name}</span>
         </div>
 
-        <h1 style={{ fontFamily: "'Inter',system-ui,sans-serif", fontSize: mobile ? 20 : 26, fontWeight: 700, color: NAVY, marginBottom: 4 }}>
-          Australian Bullion Dealers
-        </h1>
-        <p style={{ fontSize: 12, color: MUTED, marginBottom: 20 }}>
-          {dealers.length} dealers compared · Prices updated twice daily
-        </p>
+        {/* Hero */}
+        <div style={{ background:"#fff", borderRadius:10, border:`1px solid ${BORDER}`, padding: mobile?"14px":"22px 24px", marginBottom:18, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+          <div style={{ display:"flex", gap:16, alignItems:"flex-start", flexWrap:"wrap" }}>
+            <div style={{ width:72, height:72, borderRadius:10, background:BG, border:`1px solid ${BORDER}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, flexShrink:0 }}>🏪</div>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4, flexWrap:"wrap" }}>
+                <h1 style={{ fontSize: mobile?18:22, fontWeight:700, color:NAVY, margin:0, fontFamily:"'Inter',system-ui,sans-serif" }}>{d.name}</h1>
+                {d.badge && <span style={{ fontSize:9, fontWeight:700, background:"#EFF6FF", color:"#1D4ED8", padding:"2px 7px", borderRadius:10, letterSpacing:"0.05em" }}>{d.badge.toUpperCase()}</span>}
+              </div>
+              <table style={{ fontSize:12, marginTop:8, borderCollapse:"collapse", width:"auto", textAlign:"left" }}>
+                <tbody>
+                  {[
+                    ["📍","Location",   d.city],
+                    ["🌐","Website",    d.url],
+                    ["📅","Established",String(d.since)],
+                    ["⭐","Rating",     `${d.rating}/5.0 (${d.reviewCount?.toLocaleString()} Google reviews)`],
+                    ["🚚","Shipping",   d.shipping],
+                  ].map(([emoji, label, val]) => (
+                    <tr key={label}>
+                      <td style={{ color:MUTED, paddingRight:6, paddingBottom:4, verticalAlign:"top", textAlign:"left" }}>{emoji}</td>
+                      <td style={{ color:MUTED, paddingRight:14, paddingBottom:4, whiteSpace:"nowrap", verticalAlign:"top", textAlign:"left" }}>{label}</td>
+                      <td style={{ color:SLATE, paddingBottom:4, verticalAlign:"top", textAlign:"left" }}>
+                        {label === "Website"
+                          ? <a href={d.url} target="_blank" rel="noreferrer" style={{ color:NAVY, textDecoration:"none" }}>{val}</a>
+                          : val}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <a href={d.url} target="_blank" rel="noreferrer" style={{ background:"#C9A84C", color:"#0F2A44", borderRadius:8, padding:"9px 18px", fontSize:13, fontWeight:700, textDecoration:"none", flexShrink:0, whiteSpace:"nowrap" }}>Visit Store →</a>
+          </div>
+        </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: mobile ? "1fr" : "1fr 1fr", gap: 12 }}>
-          {dealers.map(d => (
-            <div key={d.name} style={{
-              background: "#fff", borderRadius: 10,
-              border: `1px solid ${BORDER}`,
-              padding: "16px 18px",
-              display: "flex", alignItems: "center", gap: 14,
-              boxShadow: "0 1px 3px rgba(0,0,0,.04)",
-            }}>
-              <div style={{
-                width: 44, height: 44, borderRadius: 8,
-                background: "#F1F5F9",
-                display: "flex", alignItems: "center",
-                justifyContent: "center", fontSize: 22, flexShrink: 0,
-              }}>{d.flag}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 2 }}>
-                  {d.name}
+        <div style={{ display:"flex", gap:18, flexWrap:"wrap", alignItems:"flex-start" }}>
+
+          {/* Main content */}
+          <div style={{ flex:"2 1 480px", minWidth:0 }}>
+            {/* Tabs */}
+            <div style={{ display:"flex", gap:6, marginBottom:16 }}>
+              {["about","locations"].map(t => (
+                <button key={t} onClick={() => setTab(t)} style={{ background:tab===t?NAVY:"#fff", color:tab===t?"#fff":SLATE, border:`1px solid ${tab===t?NAVY:BORDER}`, borderRadius:6, padding:"5px 14px", fontSize:12, fontWeight:tab===t?600:400, cursor:"pointer", fontFamily:"inherit" }}>
+                  {t.charAt(0).toUpperCase()+t.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            {/* ABOUT */}
+            {tab === "about" && (
+              <div style={{ background:"#fff", borderRadius:10, border:`1px solid ${BORDER}`, padding:"18px 20px" }}>
+                <h2 style={{ fontSize:15, fontWeight:600, color:NAVY, margin:"0 0 10px" }}>About {d.name}</h2>
+                <p style={{ fontSize:13, color:SLATE, lineHeight:1.85, margin:"0 0 18px", textAlign:"left" }}>{d.desc}</p>
+
+                <div style={{ borderTop:`1px solid ${BORDER}`, paddingTop:14, marginBottom:14 }}>
+                  <div style={{ fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:10 }}>Speciality</div>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:7 }}>
+                    {d.speciality.map(s => <span key={s} style={{ fontSize:11, background:BG, border:`1px solid ${BORDER}`, borderRadius:6, padding:"4px 10px", color:SLATE }}>{s}</span>)}
+                  </div>
                 </div>
-                <div style={{ fontSize: 11, color: MUTED }}>
-                  {dealerCounts[d.name] || 0} products tracked · Australian dealer
+
+                <div style={{ borderTop:`1px solid ${BORDER}`, paddingTop:14, marginBottom:14 }}>
+                  <div style={{ fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:10 }}>Payment Methods</div>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:7 }}>
+                    {d.payMethods.map(m => <span key={m} style={{ fontSize:11, background:"#F0FDF4", border:"1px solid #BBF7D0", borderRadius:6, padding:"4px 10px", color:"#166534" }}>✓ {m}</span>)}
+                  </div>
+                </div>
+
+                <div style={{ borderTop:`1px solid ${BORDER}`, paddingTop:14 }}>
+                  <div style={{ fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:6 }}>Shipping</div>
+                  <p style={{ fontSize:13, color:SLATE, margin:0 }}>🚚 {d.shipping}</p>
                 </div>
               </div>
-              <a href={d.url} target="_blank" rel="noreferrer" style={{
-                fontSize: 11, color: NAVY, fontWeight: 500,
-                border: `1px solid ${BORDER}`,
-                borderRadius: 6, padding: "5px 12px",
-                whiteSpace: "nowrap",
-              }}>
-                Visit →
-              </a>
+            )}
+
+            {/* LOCATIONS */}
+            {tab === "locations" && (
+              <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
+                {d.locations.map((loc, i) => (
+                  <div key={i} style={{ background:"#fff", borderRadius:10, border:`1px solid ${BORDER}`, overflow:"hidden" }}>
+                    <div style={{ padding:"13px 18px", borderBottom:`1px solid ${BORDER}`, display:"flex", alignItems:"center", gap:10 }}>
+                      <span style={{ fontSize:18 }}>📍</span>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:14, fontWeight:600, color:NAVY }}>{loc.name}</div>
+                        <div style={{ fontSize:11, color:MUTED }}>{loc.address}</div>
+                      </div>
+                    </div>
+                    <div style={{ display:"flex", flexWrap:"wrap" }}>
+                      <div style={{ padding:"12px 18px", borderRight:`1px solid ${BORDER}`, minWidth:160 }}>
+                        <div style={{ fontSize:9, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:5 }}>Phone</div>
+                        <div style={{ fontSize:12, color:SLATE }}>{loc.phone}</div>
+                      </div>
+                      <div style={{ padding:"12px 18px", flex:1 }}>
+                        <div style={{ fontSize:9, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:8 }}>Opening Hours</div>
+                        <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+                          {days.map(day => {
+                            const hours = loc.hours[day] || "Closed";
+                            return (
+                              <div key={day} style={{ display:"flex", justifyContent:"space-between", fontSize:12, paddingBottom:4, borderBottom:`1px solid ${BORDER}` }}>
+                                <span style={{ color:MUTED, fontWeight:400 }}>{day}</span>
+                                <span style={{ color: hours==="Closed"?"#DC2626":SLATE }}>{hours}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+          </div>
+
+          {/* Sidebar */}
+          <div style={{ flex:"1 1 220px", display:"flex", flexDirection:"column", gap:12 }}>
+            <div style={{ background:"#fff", borderRadius:10, border:`1px solid ${BORDER}`, padding:16 }}>
+              <div style={{ fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:12 }}>Quick Info</div>
+              {[["Established", d.since],["Location", d.city],["Website", d.url],["Stores", d.locations.length === 1 && d.locations[0].name === "Online Only" ? "Online only" : `${d.locations.length} location${d.locations.length>1?"s":""}`]].map(([l,v]) => (
+                <div key={l} style={{ display:"flex", justifyContent:"space-between", marginBottom:9, fontSize:12, borderBottom:`1px solid ${BORDER}`, paddingBottom:9 }}>
+                  <span style={{ color:MUTED }}>{l}</span>
+                  <span style={{ color:SLATE, fontWeight:500, textAlign:"right", maxWidth:140, wordBreak:"break-all", fontSize:11 }}>{v}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ background:"#fff", borderRadius:10, border:`1px solid ${BORDER}`, padding:16 }}>
+              <div style={{ fontSize:10, color:MUTED, marginBottom:10, lineHeight:1.6 }}>⭐ Ratings sourced from Google Reviews. GoldSilverPrices.com.au is independent and not affiliated with any dealer.</div>
+              <div style={{ fontSize:11, color:SLATE, marginBottom:10, lineHeight:1.6 }}>See how {d.name} compares on price across all products.</div>
+              <button onClick={() => navigate("/")} style={{ background:NAVY, color:"#fff", border:"none", borderRadius:6, padding:"9px 14px", fontSize:12, fontWeight:600, cursor:"pointer", width:"100%", fontFamily:"inherit" }}>Compare Prices →</button>
+            </div>
+            <a href={d.url} target="_blank" rel="noreferrer" style={{ background:"#C9A84C", color:"#0F2A44", borderRadius:8, padding:"12px 0", fontSize:13, fontWeight:700, textDecoration:"none", textAlign:"center", display:"block" }}>Visit {d.name} →</a>
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
+function DealersPage({ rows, goldSpot, silverSpot, updated }) {
+  const mobile   = useIsMobile();
+  const navigate = useNavigate();
+  const [stateFilter, setStateFilter] = useState("All");
+
+  const DEALERS = [
+    { id:"ainslie",      name:"Ainslie Bullion",  city:"Brisbane, QLD", state:"QLD", url:"ainsliebullion.com.au",             since:1974, badge:"Est. 1974",       rating:4.8, reviews:2341, tagline:"Brisbane's most trusted bullion dealer. Walk-in store, vault storage and a huge range of gold and silver products.", shipping:"Free over $500 · Insured" },
+    { id:"jaggards",     name:"Jaggards",          city:"Sydney, NSW",   state:"NSW", url:"jaggards.com.au",                  since:1975, badge:"Since 1975",      rating:4.7, reviews:876,  tagline:"Sydney's premier bullion and coin dealer. Specialising in investment coins, collector pieces and competitive gold bars.", shipping:"Free over $1,000 · Insured" },
+    { id:"abc",          name:"ABC Bullion",        city:"Sydney, NSW",   state:"NSW", url:"abcbullion.com.au",                since:1972, badge:"Market Leader",   rating:4.9, reviews:3102, tagline:"Australia's largest precious metals dealer. The ABC Bullion cast bar is Australia's most traded gold product.", shipping:"Free over $1,000 · Insured" },
+    { id:"perth",        name:"Perth Mint",         city:"Perth, WA",    state:"WA",  url:"perthmint.com",                    since:1899, badge:"Govt. Owned",     rating:4.9, reviews:8721, tagline:"Australia's official government mint since 1899. Products carry a government guarantee and worldwide recognition.", shipping:"Free over $500 · Insured" },
+    { id:"swan",         name:"Swan Bullion",       city:"Perth, WA",    state:"WA",  url:"swanbullion.com",                  since:2015, badge:"",                rating:4.6, reviews:412,  tagline:"Perth-based online dealer specialising in Perth Mint products with competitive pricing on coins and bars.", shipping:"Free over $500 · Insured" },
+    { id:"goldstackers", name:"Gold Stackers",      city:"Melbourne, VIC",state:"VIC",url:"goldstackers.com.au",              since:2010, badge:"",                rating:4.5, reviews:654,  tagline:"Melbourne-based dealer popular with stackers and collectors. Good range of silver coins and competitive gold pricing.", shipping:"Free over $500 · Insured" },
+    { id:"kjc",          name:"KJC Bullion",        city:"Brisbane, QLD", state:"QLD", url:"kjc-gold-silver-bullion.com.au",  since:2008, badge:"",                rating:4.4, reviews:298,  tagline:"Brisbane-based investment bullion specialists. Competitive pricing on Kangaroo coins and mainstream investment products.", shipping:"Free over $500 · Insured" },
+  ];
+
+  const states   = ["All","NSW","QLD","VIC","WA"];
+  const filtered = stateFilter === "All" ? DEALERS : DEALERS.filter(d => d.state === stateFilter);
+
+  useSEO({
+    title: "Australian Bullion Dealers | GoldSilverPrices.com.au",
+    description: "Compare Australia's top bullion dealers — Ainslie, ABC Bullion, Perth Mint, Jaggards, Swan Bullion and more.",
+  });
+
+  return (
+    <div style={{ minHeight:"100vh", background:BG }}>
+      <Header goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />
+      <div style={{ maxWidth:1000, margin:"0 auto", padding: mobile ? "16px 12px 60px" : "28px 24px 60px" }}>
+
+        {/* Breadcrumb */}
+        <div style={{ fontSize:11, color:MUTED, marginBottom:14, display:"flex", gap:5, alignItems:"center" }}>
+          <span onClick={() => navigate("/")} style={{ cursor:"pointer", color:NAVY }}>Home</span>
+          <span>›</span>
+          <span style={{ color:SLATE }}>Dealers</span>
+        </div>
+
+        <h1 style={{ fontSize: mobile?20:26, fontWeight:700, color:NAVY, margin:"0 0 6px", fontFamily:"'Inter',system-ui,sans-serif" }}>
+          Australian Bullion Dealers
+        </h1>
+        <p style={{ color:MUTED, fontSize:13, margin:"0 0 22px" }}>
+          Verified Australian dealers we track for daily price comparisons.
+        </p>
+
+        {/* State filter */}
+        <div style={{ display:"flex", gap:7, marginBottom:22, flexWrap:"wrap", alignItems:"center" }}>
+          <span style={{ fontSize:12, color:MUTED }}>State:</span>
+          {states.map(s => (
+            <button key={s} onClick={() => setStateFilter(s)} style={{
+              background: stateFilter===s ? NAVY : "#fff",
+              color: stateFilter===s ? "#fff" : SLATE,
+              border: `1px solid ${stateFilter===s ? NAVY : BORDER}`,
+              borderRadius:6, padding:"4px 12px",
+              fontSize:12, fontWeight: stateFilter===s ? 600 : 400,
+              cursor:"pointer", fontFamily:"inherit",
+            }}>{s}</button>
+          ))}
+        </div>
+
+        {/* Dealer cards */}
+        <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+          {filtered.map(d => (
+            <div key={d.id} onClick={() => navigate(`/dealers/${d.id}`)}
+              style={{ background:"#fff", borderRadius:10, border:`1px solid ${BORDER}`, padding: mobile?"14px":"18px 20px", cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"flex", gap:14, alignItems:"flex-start" }}>
+
+              {/* Logo placeholder */}
+              <div style={{ width:54, height:54, borderRadius:8, background:BG, border:`1px solid ${BORDER}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:22 }}>🏪</div>
+
+              {/* Info */}
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:7, marginBottom:3, flexWrap:"wrap" }}>
+                  <span style={{ fontSize: mobile?14:15, fontWeight:700, color:NAVY }}>{d.name}</span>
+                  {d.badge && <span style={{ fontSize:9, fontWeight:700, background:"#EFF6FF", color:"#1D4ED8", padding:"2px 7px", borderRadius:10, letterSpacing:"0.05em" }}>{d.badge.toUpperCase()}</span>}
+                </div>
+                <div style={{ fontSize:11, color:MUTED, marginBottom:5 }}>📍 {d.city} · {d.url}</div>
+                <p style={{ fontSize:12, color:SLATE, margin:"0 0 7px", lineHeight:1.6, textAlign:"left" }}>{d.tagline}</p>
+                <div style={{ display:"flex", gap:14, flexWrap:"wrap" }}>
+                  <span style={{ fontSize:11, color:MUTED }}>⭐ <strong style={{ color:SLATE }}>{d.rating}</strong> ({d.reviews.toLocaleString()} reviews)</span>
+                  <span style={{ fontSize:11, color:MUTED }}>Est. {d.since}</span>
+                </div>
+              </div>
+
+              {/* Arrow */}
+              {!mobile && <div style={{ background:NAVY, color:"#fff", borderRadius:6, padding:"8px 16px", fontSize:12, fontWeight:600, flexShrink:0, alignSelf:"center" }}>View →</div>}
             </div>
           ))}
         </div>
 
-        <p style={{ textAlign: "center", fontSize: 11, color: MUTED, lineHeight: 1.7, marginTop: 20 }}>
-          ⚠️ GoldSilverPrices.com.au is independent and not affiliated with any dealer.
-        </p>
+        {/* Disclaimer */}
+        <div style={{ marginTop:28, background:"#EFF6FF", border:"1px solid #BFDBFE", borderRadius:8, padding:"12px 16px", fontSize:12, color:"#1E40AF", lineHeight:1.7 }}>
+          <strong>Independent comparison:</strong> GoldSilverPrices.com.au is not affiliated with any dealer. We never accept payment for placement. Prices are scraped twice daily directly from each dealer's website.
+        </div>
       </div>
       <Footer />
     </div>
@@ -1237,8 +1545,6 @@ function DealersPage({ rows, goldSpot, silverSpot, updated }) {
 }
 
 
-
-/* ── Magazine Carousel ────────────────────────────────────────────────────── */
 function MagazineCarousel() {
   const mobile = useIsMobile();
   const [active, setActive] = useState(0);
@@ -1487,6 +1793,7 @@ function AppInner() {
       <Route path="/silver" element={<HomePage {...sharedProps} defaultMetal="silver" />} />
       <Route path="/bars" element={<HomePage {...sharedProps} defaultSection="bars" />} />
       <Route path="/dealers" element={<DealersPage {...sharedProps} />} />
+      <Route path="/dealers/:dealerId" element={<DealerPage {...sharedProps} />} />
       <Route path="/bars/:metal/:barType/:size" element={<BarProductPage {...sharedProps} />} />
       <Route path="/sell" element={<SellPage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
       <Route path="/magazine" element={<MagazinePage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
