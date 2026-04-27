@@ -1,45 +1,19 @@
-const fs = require('fs');
-let c = fs.readFileSync('src/App.jsx', 'utf8');
+// patch_fe.cjs
+const fs = require("fs");
+let c = fs.readFileSync("src/App.jsx", "utf8").replace(/\r\n/g, "\n");
 
-c = c.replace(
-  `<table style={{ fontSize:12, marginTop:8, borderCollapse:"collapse", width:"100%" }}>
-                <tbody>
-                  {[
-                    ["Location",   d.city],
-                    ["Website",    d.url],
-                    ["Established",d.since],
-                    ["Rating",     \`\${d.rating}/5.0 (\${d.reviewCount?.toLocaleString()} Google reviews)\`],
-                    ["Shipping",   d.shipping],
-                  ].map(([label, val]) => (
-                    <tr key={label}>
-                      <td style={{ color:MUTED, paddingRight:16, paddingBottom:5, whiteSpace:"nowrap", verticalAlign:"top", width:90 }}>{label}</td>
-                      <td style={{ color:SLATE, paddingBottom:5, verticalAlign:"top" }}>{label === "Website" ? <a href={d.url} target="_blank" rel="noreferrer" style={{ color:NAVY, textDecoration:"none" }}>{val}</a> : val}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>`,
-  `<table style={{ fontSize:12, marginTop:8, borderCollapse:"collapse", width:"auto", textAlign:"left" }}>
-                <tbody>
-                  {[
-                    ["📍","Location",   d.city],
-                    ["🌐","Website",    d.url],
-                    ["📅","Established",String(d.since)],
-                    ["⭐","Rating",     \`\${d.rating}/5.0 (\${d.reviewCount?.toLocaleString()} Google reviews)\`],
-                    ["🚚","Shipping",   d.shipping],
-                  ].map(([emoji, label, val]) => (
-                    <tr key={label}>
-                      <td style={{ color:MUTED, paddingRight:6, paddingBottom:4, verticalAlign:"top", textAlign:"left" }}>{emoji}</td>
-                      <td style={{ color:MUTED, paddingRight:14, paddingBottom:4, whiteSpace:"nowrap", verticalAlign:"top", textAlign:"left" }}>{label}</td>
-                      <td style={{ color:SLATE, paddingBottom:4, verticalAlign:"top", textAlign:"left" }}>
-                        {label === "Website"
-                          ? <a href={d.url} target="_blank" rel="noreferrer" style={{ color:NAVY, textDecoration:"none" }}>{val}</a>
-                          : val}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>`
-);
+const OLD = `        let qUrl = SUPA_URL + "/rest/v1/prices_v2?metal=eq." + metal + "&category=eq." + category +
+          "&select=coin_type,bar_brand,bar_type,weight_oz,weight_g,buy_price,dealer&order=buy_price.asc";
+        if (category === "coin") qUrl += "&weight_oz=eq.1";
+        const res  = await fetch(qUrl, { headers:{ apikey:SUPA_KEY, Authorization:"Bearer " + SUPA_KEY } });
+        const data = await res.json();`;
 
-fs.writeFileSync('src/App.jsx', c, 'utf8');
-console.log('✓ Done');
+const NEW = `        let q = supabase.from("prices_v2").select("coin_type,bar_brand,bar_type,weight_oz,weight_g,buy_price,dealer").eq("metal", metal).eq("category", category).order("buy_price", { ascending:true });
+        if (category === "coin") q = q.eq("weight_oz", 1);
+        const { data, error } = await q;
+        if (error) throw error;`;
+
+if (!c.includes(OLD)) { console.error("❌ OLD not found"); process.exit(1); }
+c = c.replace(OLD, NEW);
+fs.writeFileSync("src/App.jsx", c);
+console.log("✅ Fixed — using supabase client");

@@ -1313,12 +1313,12 @@ function DealerPage({ goldSpot, silverSpot, updated }) {
         <div style={{ background:"#fff", borderRadius:10, border:`1px solid ${BORDER}`, padding: mobile?"14px":"22px 24px", marginBottom:18, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
           <div style={{ display:"flex", gap:16, alignItems:"flex-start", flexWrap:"wrap" }}>
             <div style={{ width:72, height:72, borderRadius:10, background:BG, border:`1px solid ${BORDER}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, flexShrink:0 }}>🏪</div>
-            <div style={{ flex:1, minWidth:0 }}>
+            <div style={{ flex:1, minWidth:0, textAlign:"left" }}>
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4, flexWrap:"wrap" }}>
                 <h1 style={{ fontSize: mobile?18:22, fontWeight:700, color:NAVY, margin:0, fontFamily:"'Inter',system-ui,sans-serif" }}>{d.name}</h1>
                 {d.badge && <span style={{ fontSize:9, fontWeight:700, background:"#EFF6FF", color:"#1D4ED8", padding:"2px 7px", borderRadius:10, letterSpacing:"0.05em" }}>{d.badge.toUpperCase()}</span>}
               </div>
-              <table style={{ fontSize:12, marginTop:8, borderCollapse:"collapse", width:"auto", textAlign:"left" }}>
+              <table style={{ fontSize:12, marginTop:8, borderCollapse:"collapse", width:"100%", textAlign:"left" }}>
                 <tbody>
                   {[
                     ["📍","Location",   d.city],
@@ -1704,6 +1704,117 @@ function HomePage({ rows, goldSpot, silverSpot, updated }) {
 /* ══════════════════════════════════════════════════════════════════════════ */
 /* ROOT APP                                                                   */
 /* ══════════════════════════════════════════════════════════════════════════ */
+
+function ProductRegistryPage({ metal, category, goldSpot, silverSpot }) {
+  const navigate = useNavigate();
+  const mobile   = useIsMobile();
+  const [rows, setRows]       = useState([]);
+  const [loading, setLoading] = useState(true);
+  const spot     = metal === "gold" ? goldSpot : silverSpot;
+  const metalCap = metal === "gold" ? "Gold" : "Silver";
+  const catCap   = category === "coin" ? "Coins" : "Bars";
+
+  useSEO({
+    title: metalCap + " " + catCap + " — Compare Prices | GoldSilverPrices.com.au",
+    description: "Compare " + metalCap.toLowerCase() + " " + catCap.toLowerCase() + " prices from all major Australian bullion dealers. Updated twice daily.",
+  });
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        let q = supabase.from("prices_v2").select("coin_type,bar_brand,bar_type,weight_oz,weight_g,buy_price,dealer").eq("metal", metal).eq("category", category).order("buy_price", { ascending:true });
+        if (category === "coin") q = q.eq("weight_oz", 1);
+        const { data, error } = await q;
+        if (error) throw error;
+        const groups = {};
+        data.forEach(function(r) {
+          var key, label, link, wOz;
+          if (category === "coin") {
+            if (!r.coin_type) return;
+            key   = r.coin_type;
+            label = r.coin_type;
+            link  = "/" + metal + "/coin/" + r.coin_type.toLowerCase().replace(/s+/g, "-");
+            wOz   = 1;
+          } else {
+            var wLabel = r.weight_oz ? r.weight_oz + "oz" : r.weight_g + "g";
+            key   = (r.bar_brand || "") + "|" + (r.bar_type || "") + "|" + wLabel;
+            var ts = r.bar_type ? r.bar_type.charAt(0).toUpperCase() + r.bar_type.slice(1) : "";
+            label = [r.bar_brand || "", ts, wLabel].filter(Boolean).join(" ");
+            link  = "/bars/" + metal + "/" + (r.bar_type || "cast") + "/" + wLabel;
+            wOz   = r.weight_oz || (r.weight_g ? r.weight_g / 31.1035 : 1);
+          }
+          if (!groups[key]) groups[key] = { key, label, link, wOz, prices:[] };
+          groups[key].prices.push({ price:r.buy_price, dealer:r.dealer });
+        });
+        const result = Object.values(groups).map(function(g) {
+          const best    = Math.min.apply(null, g.prices.map(function(p){ return p.price; }));
+          const match   = g.prices.find(function(p){ return p.price === best; });
+          const spotVal = (spot || 0) * g.wOz;
+          const prem    = spotVal > 0 ? +((best - spotVal) / spotVal * 100).toFixed(1) : null;
+          return { key:g.key, label:g.label, link:g.link, best, dealer:match?match.dealer:"", n:new Set(g.prices.map(function(p){return p.dealer;})).size, prem };
+        }).sort(function(a,b){ return (a.prem==null?999:a.prem)-(b.prem==null?999:b.prem); });
+        setRows(result);
+      } catch(e) { console.error(e); }
+      setLoading(false);
+    }
+    load();
+  }, [metal, category, spot]);
+
+  function pc(p){ return p < 3 ? "#16A34A" : p < 7 ? "#D97706" : "#DC2626"; }
+
+  return (
+    <div style={{ minHeight:"100vh", background:BG }}>
+      <Header goldSpot={goldSpot} silverSpot={silverSpot} />
+      <div style={{ maxWidth:1000, margin:"0 auto", padding:mobile?"14px 12px 60px":"28px 24px 60px" }}>
+        <div style={{ fontSize:11, color:MUTED, marginBottom:14, display:"flex", gap:5 }}>
+          <span onClick={()=>navigate("/")} style={{ cursor:"pointer", color:NAVY }}>Home</span>
+          <span>›</span>
+          <span style={{ color:SLATE }}>{metalCap} {catCap}</span>
+        </div>
+        <div style={{ marginBottom:20 }}>
+          <h1 style={{ fontSize:mobile?20:26, fontWeight:700, color:NAVY, margin:"0 0 6px", fontFamily:"'Inter',system-ui,sans-serif" }}>{metalCap} {catCap}</h1>
+          <p style={{ fontSize:13, color:MUTED, margin:0 }}>Best prices from Australian dealers · Updated twice daily · Sorted by lowest premium</p>
+        </div>
+        {loading ? (
+          <div style={{ textAlign:"center", padding:60, color:MUTED }}>Loading prices…</div>
+        ) : rows.length === 0 ? (
+          <div style={{ textAlign:"center", padding:60, color:MUTED }}>No products found.</div>
+        ) : (
+          <div style={{ background:"#fff", borderRadius:10, border:"1px solid "+BORDER, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+            <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
+              <thead>
+                <tr style={{ background:BG, borderBottom:"1px solid "+BORDER }}>
+                  <th style={{ padding:"10px 16px", textAlign:"left",   fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em" }}>Product</th>
+                  {!mobile && <th style={{ padding:"10px 12px", textAlign:"right",  fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em" }}>Best Price</th>}
+                  <th style={{ padding:"10px 12px", textAlign:"right",  fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em" }}>Premium</th>
+                  {!mobile && <th style={{ padding:"10px 12px", textAlign:"center", fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em" }}>Dealers</th>}
+                  <th style={{ padding:"10px 12px", textAlign:"left",   fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em" }}>Best From</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map(function(row, i) { return (
+                  <tr key={row.key} onClick={()=>navigate(row.link)}
+                    style={{ borderBottom:"1px solid "+BORDER, cursor:"pointer", background:i%2===0?"#fff":"#FAFAFA" }}
+                    onMouseEnter={function(e){e.currentTarget.style.background="#F0F4FF";}}
+                    onMouseLeave={function(e){e.currentTarget.style.background=i%2===0?"#fff":"#FAFAFA";}}>
+                    <td style={{ padding:"11px 16px", fontWeight:600, color:NAVY }}>{row.label}</td>
+                    {!mobile && <td style={{ padding:"11px 12px", textAlign:"right", color:SLATE }}>{"A$"+row.best.toLocaleString("en-AU",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>}
+                    <td style={{ padding:"11px 12px", textAlign:"right" }}>
+                      {row.prem!==null ? <span style={{ fontWeight:600, color:pc(row.prem) }}>{"+" + row.prem + "%"}</span> : <span style={{ color:MUTED }}>—</span>}
+                    </td>
+                    {!mobile && <td style={{ padding:"11px 12px", textAlign:"center", color:MUTED }}>{row.n}</td>}
+                    <td style={{ padding:"11px 12px", color:SLATE, fontSize:12 }}>{row.dealer}</td>
+                  </tr>
+                ); })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 function AppInner() {
   const [rows, setRows]             = useState([]);
   const [updated, setUpdated]       = useState(null);
@@ -1795,7 +1906,11 @@ function AppInner() {
       <Route path="/dealers" element={<DealersPage {...sharedProps} />} />
       <Route path="/dealers/:dealerId" element={<DealerPage {...sharedProps} />} />
       <Route path="/bars/:metal/:barType/:size" element={<BarProductPage {...sharedProps} />} />
-      <Route path="/sell" element={<SellPage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
+      <Route path="/gold/coins"   element={<ProductRegistryPage metal="gold"   category="coin" goldSpot={goldSpot} silverSpot={silverSpot} />} />
+              <Route path="/silver/coins"  element={<ProductRegistryPage metal="silver" category="coin" goldSpot={goldSpot} silverSpot={silverSpot} />} />
+              <Route path="/gold/bars"     element={<ProductRegistryPage metal="gold"   category="bar"  goldSpot={goldSpot} silverSpot={silverSpot} />} />
+              <Route path="/silver/bars"   element={<ProductRegistryPage metal="silver" category="bar"  goldSpot={goldSpot} silverSpot={silverSpot} />} />
+              <Route path="/sell" element={<SellPage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
       <Route path="/magazine" element={<MagazinePage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
     </Routes>
   );

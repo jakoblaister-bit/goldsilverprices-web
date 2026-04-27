@@ -1,0 +1,66 @@
+function DealerPage({ goldSpot, silverSpot, updated }) {
+  const { dealerId } = useParams();
+  const navigate     = useNavigate();
+  const mobile       = useIsMobile();
+  const [tab, setTab] = useState("about");
+  const d = DEALER_INFO[dealerId] || DEALER_INFO.ainslie;
+  const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+  useSEO({
+    title: `${d.name} | GoldSilverPrices.com.au`,
+    description: `${d.name} — ${d.city}. ${d.desc.slice(0,120)}...`,
+  });
+
+  return (
+    <div style={{ minHeight:"100vh", background:BG }}>
+      <Header goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />
+      <div style={{ maxWidth:1000, margin:"0 auto", padding: mobile?"14px 12px 60px":"28px 24px 60px" }}>
+
+        {/* Breadcrumb */}
+        <div style={{ fontSize:11, color:MUTED, marginBottom:14, display:"flex", gap:5, alignItems:"center" }}>
+          <span onClick={() => navigate("/")} style={{ cursor:"pointer", color:NAVY }}>Home</span>
+          <span>›</span>
+          <span onClick={() => navigate("/dealers")} style={{ cursor:"pointer", color:NAVY }}>Dealers</span>
+          <span>›</span>
+          <span style={{ color:SLATE }}>{d.name}</span>
+        </div>
+
+        {/* Hero */}
+        <div style={{ background:"#fff", borderRadius:10, border:`1px solid ${BORDER}`, padding: mobile?"14px":"22px 24px", marginBottom:18, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+          <div style={{ display:"flex", gap:16, alignItems:"flex-start", flexWrap:"wrap" }}>
+            <div style={{ width:72, height:72, borderRadius:10, background:BG, border:`1px solid ${BORDER}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, flexShrink:0 }}>🏪</div>
+            <div style={{ flex:1, minWidth:0, textAlign:"left" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4, flexWrap:"wrap" }}>
+                <h1 style={{ fontSize: mobile?18:22, fontWeight:700, color:NAVY, margin:0, fontFamily:"'Inter',system-ui,sans-serif" }}>{d.name}</h1>
+                {d.badge && <span style={{ fontSize:9, fontWeight:700, background:"#EFF6FF", color:"#1D4ED8", padding:"2px 7px", borderRadius:10, letterSpacing:"0.05em" }}>{d.badge.toUpperCase()}</span>}
+              </div>
+              <table style={{ fontSize:12, marginTop:8, borderCollapse:"collapse", width:"100%", textAlign:"left" }}>
+                <tbody>
+                  {[
+                    ["📍","Location",   d.city],
+                    ["🌐","Website",    d.url],
+                    ["📅","Established",String(d.since)],
+                    ["⭐","Rating",     `${d.rating}/5.0 (${d.reviewCount?.toLocaleString()} Google reviews)`],
+                    ["🚚","Shipping",   d.shipping],
+                  ].map(([emoji, label, val]) => (
+                    <tr key={label}>
+                      <td style={{ color:MUTED, paddingRight:6, paddingBottom:4, verticalAlign:"top", textAlign:"left" }}>{emoji}</td>
+                      <td style={{ color:MUTED, paddingRight:14, paddingBottom:4, whiteSpace:"nowrap", verticalAlign:"top", textAlign:"left" }}>{label}</td>
+                      <td style={{ color:SLATE, paddingBottom:4, verticalAlign:"top", textAlign:"left" }}>
+                        {label === "Website"
+                          ? <a href={d.url} target="_blank" rel="noreferrer" style={{ color:NAVY, textDecoration:"none" }}>{val}</a>
+                          : val}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <a href={d.url} target="_blank" rel="noreferrer" style={{ background:"#C9A84C", color:"#0F2A44", borderRadius:8, padding:"9px 18px", fontSize:13, fontWeight:700, textDecoration:"none", flexShrink:0, whiteSpace:"nowrap" }}>Visit Store →</a>
+          </div>
+        </div>
+
+        <div style={{ display:"flex", gap:18, flexWrap:"wrap", alignItems:"flex-start" }}>
+
+          {/* Main content */}
+          <div style={{ 
