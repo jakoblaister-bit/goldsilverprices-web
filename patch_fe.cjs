@@ -2,18 +2,20 @@
 const fs = require("fs");
 let c = fs.readFileSync("src/App.jsx", "utf8").replace(/\r\n/g, "\n");
 
-const OLD = `        let qUrl = SUPA_URL + "/rest/v1/prices_v2?metal=eq." + metal + "&category=eq." + category +
-          "&select=coin_type,bar_brand,bar_type,weight_oz,weight_g,buy_price,dealer&order=buy_price.asc";
-        if (category === "coin") qUrl += "&weight_oz=eq.1";
-        const res  = await fetch(qUrl, { headers:{ apikey:SUPA_KEY, Authorization:"Bearer " + SUPA_KEY } });
-        const data = await res.json();`;
+// CoinsSection "All" link
+const OLD1 = `        All {title.toLowerCase()} ›
+      </div>
+    </Card>`;
+const NEW1 = `        <span onClick={() => navigate("/" + metal + "/coins")} style={{ cursor:"pointer" }}>All {title.toLowerCase()} ›</span>
+      </div>
+    </Card>`;
 
-const NEW = `        let q = supabase.from("prices_v2").select("coin_type,bar_brand,bar_type,weight_oz,weight_g,buy_price,dealer").eq("metal", metal).eq("category", category).order("buy_price", { ascending:true });
-        if (category === "coin") q = q.eq("weight_oz", 1);
-        const { data, error } = await q;
-        if (error) throw error;`;
+// BarsSection "All" link
+const OLD2 = `        <span style={{ fontSize: 11, color: NAVY, cursor: "pointer", fontWeight: 500 }}>All {tab.toLowerCase()} ›</span>`;
+const NEW2 = `        <span onClick={() => navigate("/" + metal + "/bars")} style={{ fontSize: 11, color: NAVY, cursor: "pointer", fontWeight: 500 }}>All {tab.toLowerCase()} ›</span>`;
 
-if (!c.includes(OLD)) { console.error("❌ OLD not found"); process.exit(1); }
-c = c.replace(OLD, NEW);
+if (!c.includes(OLD1)) { console.error("❌ CoinsSection All not found"); process.exit(1); }
+if (!c.includes(OLD2)) { console.error("❌ BarsSection All not found"); process.exit(1); }
+c = c.replace(OLD1, NEW1).replace(OLD2, NEW2);
 fs.writeFileSync("src/App.jsx", c);
-console.log("✅ Fixed — using supabase client");
+console.log("✅ All links connected to registry pages");

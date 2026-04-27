@@ -448,7 +448,7 @@ function CoinsSection({ metal, icon, title, weights, rows }) {
         fontSize: 11, color: NAVY, fontWeight: 500, textAlign: "right",
         cursor: "pointer",
       }}>
-        All {title.toLowerCase()} ›
+        <span onClick={() => navigate("/" + metal + "/coins")} style={{ cursor:"pointer" }}>All {title.toLowerCase()} ›</span>
       </div>
     </Card>
   );
@@ -564,7 +564,7 @@ function BarsSection({ rows }) {
 
       {/* All bars link */}
       <div style={{ padding: "8px 14px", textAlign: "right", borderTop: `1px solid ${BORDER}`, background: "#F8FAFC" }}>
-        <span style={{ fontSize: 11, color: NAVY, cursor: "pointer", fontWeight: 500 }}>All {tab.toLowerCase()} ›</span>
+        <span onClick={() => navigate("/" + metal + "/bars")} style={{ fontSize: 11, color: NAVY, cursor: "pointer", fontWeight: 500 }}>All {tab.toLowerCase()} ›</span>
       </div>
     </div>
   );
@@ -1777,39 +1777,24 @@ function ProductRegistryPage({ metal, category, goldSpot, silverSpot }) {
           <p style={{ fontSize:13, color:MUTED, margin:0 }}>Best prices from Australian dealers · Updated twice daily · Sorted by lowest premium</p>
         </div>
         {loading ? (
-          <div style={{ textAlign:"center", padding:60, color:MUTED }}>Loading prices…</div>
+          <div style={{ padding:"20px 14px", textAlign:"center", color:MUTED, fontSize:13 }}>Loading prices…</div>
         ) : rows.length === 0 ? (
-          <div style={{ textAlign:"center", padding:60, color:MUTED }}>No products found.</div>
+          <div style={{ padding:"20px 14px", textAlign:"center", color:MUTED, fontSize:13 }}>No products found.</div>
         ) : (
-          <div style={{ background:"#fff", borderRadius:10, border:"1px solid "+BORDER, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-            <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
-              <thead>
-                <tr style={{ background:BG, borderBottom:"1px solid "+BORDER }}>
-                  <th style={{ padding:"10px 16px", textAlign:"left",   fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em" }}>Product</th>
-                  {!mobile && <th style={{ padding:"10px 12px", textAlign:"right",  fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em" }}>Best Price</th>}
-                  <th style={{ padding:"10px 12px", textAlign:"right",  fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em" }}>Premium</th>
-                  {!mobile && <th style={{ padding:"10px 12px", textAlign:"center", fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em" }}>Dealers</th>}
-                  <th style={{ padding:"10px 12px", textAlign:"left",   fontSize:10, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em" }}>Best From</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map(function(row, i) { return (
-                  <tr key={row.key} onClick={()=>navigate(row.link)}
-                    style={{ borderBottom:"1px solid "+BORDER, cursor:"pointer", background:i%2===0?"#fff":"#FAFAFA" }}
-                    onMouseEnter={function(e){e.currentTarget.style.background="#F0F4FF";}}
-                    onMouseLeave={function(e){e.currentTarget.style.background=i%2===0?"#fff":"#FAFAFA";}}>
-                    <td style={{ padding:"11px 16px", fontWeight:600, color:NAVY }}>{row.label}</td>
-                    {!mobile && <td style={{ padding:"11px 12px", textAlign:"right", color:SLATE }}>{"A$"+row.best.toLocaleString("en-AU",{minimumFractionDigits:2,maximumFractionDigits:2})}</td>}
-                    <td style={{ padding:"11px 12px", textAlign:"right" }}>
-                      {row.prem!==null ? <span style={{ fontWeight:600, color:pc(row.prem) }}>{"+" + row.prem + "%"}</span> : <span style={{ color:MUTED }}>—</span>}
-                    </td>
-                    {!mobile && <td style={{ padding:"11px 12px", textAlign:"center", color:MUTED }}>{row.n}</td>}
-                    <td style={{ padding:"11px 12px", color:SLATE, fontSize:12 }}>{row.dealer}</td>
-                  </tr>
-                ); })}
-              </tbody>
-            </table>
-          </div>
+          <Card>
+            {rows.map(function(row, i) { return (
+              <div key={row.key} onClick={()=>navigate(row.link)}
+                style={{ display:"flex", alignItems:"center", padding:"0 14px", minHeight:42, gap:8, background:i%2===0?"#fff":"#FAFBFC", borderBottom:"1px solid "+BORDER, cursor:"pointer", transition:"background .1s" }}
+                onMouseEnter={function(e){e.currentTarget.style.background="#F0F4F8";}}
+                onMouseLeave={function(e){e.currentTarget.style.background=i%2===0?"#fff":"#FAFBFC";}}>
+                <span style={{ flex:1, fontSize:13, color:"#1E293B", textAlign:"left", paddingLeft:8 }}>{row.label}</span>
+                {row.prem!==null && <span style={{ fontSize:12, fontWeight:600, color:pc(row.prem), minWidth:52, textAlign:"right" }}>{"+" + row.prem + "%"}</span>}
+                <span style={{ fontSize:10, color:MUTED, marginRight:4 }}>from</span>
+                <span style={{ fontSize:13, fontWeight:600, color:NAVY, whiteSpace:"nowrap" }}>{"A$"+row.best.toLocaleString("en-AU",{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+                <span style={{ fontSize:13, color:"#CBD5E1" }}>{"›"}</span>
+              </div>
+            ); })}
+          </Card>
         )}
       </div>
     </div>
