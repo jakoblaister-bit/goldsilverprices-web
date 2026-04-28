@@ -1,9 +1,25 @@
+function NavBar() {
+  const mobile = useIsMobile();
+  const navigate = useNavigate();
+  const path = window.location.pathname;
 
-  const location = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
-  return null;
-}
+  const links = [
+    { label: "Buy",      path: "/",         desc: "Compare prices" },
+    { label: "Sell",     path: "/sell",      desc: "Sell your bullion" },
+    { label: "Dealers",  path: "/dealers",   desc: "All 8 dealers" },
+    { label: "Magazine", path: "/magazine",  desc: "Gold & silver news" },
+  ];
 
-function AppInner() {
-  const [rows, setRows]             = useState([]);
-  const [updated, setUpda
+  const isActive = (p) => p === "/" ? path === "/" : path.startsWith(p);
+
+  return (
+    <div style={{
+      background: "#0F2A44",
+      borderTop: "1px solid rgba(255,255,255,0.06)",
+      borderBottom: "1px solid rgba(0,0,0,0.2)",
+    }}>
+      <div style={{
+        maxWidth: 1100,
+        margin: "0 auto",
+        display: "flex",
+        justifyContent

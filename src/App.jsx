@@ -72,94 +72,51 @@ function NavBar() {
   const mobile = useIsMobile();
   const navigate = useNavigate();
   const path = window.location.pathname;
-
+  const [serviceOpen, setServiceOpen] = useState(false);
+  const SERVICE_ITEMS = [
+    { label:"Calculator", path:"/calculator", icon:"🧮" },
+  ];
   const links = [
     { label: "Buy",      path: "/",         desc: "Compare prices" },
     { label: "Sell",     path: "/sell",      desc: "Sell your bullion" },
     { label: "Dealers",  path: "/dealers",   desc: "All 8 dealers" },
     { label: "Magazine", path: "/magazine",  desc: "Gold & silver news" },
   ];
-
   const isActive = (p) => p === "/" ? path === "/" : path.startsWith(p);
-
   return (
-    <div style={{
-      background: "#0F2A44",
-      borderTop: "1px solid rgba(255,255,255,0.06)",
-      borderBottom: "1px solid rgba(0,0,0,0.2)",
-    }}>
-      <div style={{
-        maxWidth: 1100,
-        margin: "0 auto",
-        display: "flex",
-        justifyContent: "center",
-        padding: mobile ? "0 4px" : "0 24px",
-      }}>
+    <div style={{ background:"#0F2A44", borderTop:"1px solid rgba(255,255,255,0.06)", borderBottom:"1px solid rgba(0,0,0,0.2)" }}>
+      <div style={{ maxWidth:1100, margin:"0 auto", display:"flex", justifyContent:"center", padding: mobile ? "0 4px" : "0 24px" }}>
         {links.map(l => (
-          <button
-            key={l.label}
-            onClick={() => navigate(l.path)}
-            style={{
-              background: "none",
-              border: "none",
-              borderBottom: isActive(l.path)
-                ? "2px solid #E2C97E"
-                : "2px solid transparent",
-              color: isActive(l.path) ? "#fff" : "#94A3B8",
-              fontSize: mobile ? 12 : 13,
-              fontWeight: isActive(l.path) ? 600 : 400,
-              padding: mobile ? "0 14px" : "0 28px",
-              height: mobile ? 38 : 44,
-              cursor: "pointer",
-              fontFamily: "inherit",
-              letterSpacing: "0.01em",
-              transition: "color .15s, border-color .15s",
-              whiteSpace: "nowrap",
-            }}
-            onMouseEnter={e => {
-              if (!isActive(l.path)) {
-                e.currentTarget.style.color = "#E2E8F0";
-                e.currentTarget.style.borderBottomColor = "rgba(226,201,126,0.3)";
-              }
-            }}
-            onMouseLeave={e => {
-              if (!isActive(l.path)) {
-                e.currentTarget.style.color = "#94A3B8";
-                e.currentTarget.style.borderBottomColor = "transparent";
-              }
-            }}
-          >
+          <button key={l.label} onClick={() => navigate(l.path)}
+            style={{ background:"none", border:"none", borderBottom: isActive(l.path) ? "2px solid #E2C97E" : "2px solid transparent", color: isActive(l.path) ? "#fff" : "#94A3B8", fontSize: mobile ? 12 : 13, fontWeight: isActive(l.path) ? 600 : 400, padding: mobile ? "0 14px" : "0 28px", height: mobile ? 38 : 44, cursor:"pointer", fontFamily:"inherit" }}>
             {l.label}
           </button>
         ))}
+        <div style={{ position:"relative" }}>
+          <button onClick={()=>setServiceOpen(function(o){return !o;})}
+            style={{ background:"none", border:"none", borderBottom: path.startsWith("/calculator") ? "2px solid #E2C97E" : "2px solid transparent", color: path.startsWith("/calculator") ? "#fff" : "#94A3B8", fontSize: mobile ? 12 : 13, fontWeight:400, padding: mobile ? "0 14px" : "0 28px", height: mobile ? 38 : 44, cursor:"pointer", fontFamily:"inherit", display:"flex", alignItems:"center", gap:4 }}>
+            Service
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 3.5l3 3 3-3"/></svg>
+          </button>
+          {serviceOpen && (
+            <div style={{ position:"absolute", top:"100%", right:0, background:"#fff", borderRadius:8, border:"1px solid #E2E8F0", boxShadow:"0 4px 16px rgba(0,0,0,0.12)", zIndex:100, minWidth:160, overflow:"hidden" }}
+              onMouseLeave={()=>setServiceOpen(false)}>
+              {SERVICE_ITEMS.map(function(item){ return (
+                <div key={item.path} onClick={function(){ navigate(item.path); setServiceOpen(false); }}
+                  style={{ padding:"10px 16px", fontSize:13, color:NAVY, cursor:"pointer", display:"flex", alignItems:"center", gap:8 }}
+                  onMouseEnter={function(e){e.currentTarget.style.background=BG;}}
+                  onMouseLeave={function(e){e.currentTarget.style.background="#fff";}}>
+                  <span>{item.icon}</span>{item.label}
+                </div>
+              ); })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-
-
-
-
-const COIN_INFO = {
-  "Kangaroo":      { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "1986" },
-  "Kookaburra":    { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "1990" },
-  "Koala":         { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "1987" },
-  "Lunar":         { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "1996" },
-  "Emu":           { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "2018" },
-  "Swan":          { country: "Australia", mint: "Perth Mint",    fineness: "999.9/1000", since: "2017" },
-  "Maple Leaf":    { country: "Canada",    mint: "Royal Canadian", fineness: "999.9/1000", since: "1979" },
-  "Krugerrand":    { country: "S. Africa", mint: "SA Mint",       fineness: "916.7/1000", since: "1967" },
-  "Britannia":     { country: "UK",        mint: "Royal Mint",    fineness: "999.9/1000", since: "2013" },
-  "Philharmonic":  { country: "Austria",   mint: "Austrian Mint", fineness: "999.9/1000", since: "1989" },
-  "American Eagle":{ country: "USA",       mint: "US Mint",       fineness: "916.7/1000", since: "1986" },
-  "Buffalo":       { country: "USA",       mint: "US Mint",       fineness: "999.9/1000", since: "2006" },
-};
-
-
-
-
-/* ── Top spot bar ─────────────────────────────────────────────────────────── */
 function TopBar({ goldSpot, silverSpot, goldChange, silverChange }) {
   const mobile = useIsMobile();
   return (
@@ -1166,22 +1123,153 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
 /* SELL PAGE                                                                  */
 /* ══════════════════════════════════════════════════════════════════════════ */
 function SellPage({ goldSpot, silverSpot, updated }) {
-  const mobile = useIsMobile();
+  const mobile   = useIsMobile();
   const navigate = useNavigate();
+  const [postcode, setPostcode] = useState("");
+  const [searched, setSearched] = useState(false);
+  const [metal, setMetal]       = useState("gold");
+
   useSEO({
     title: "Sell Gold & Silver Australia | GoldSilverPrices.com.au",
-    description: "Compare buyback prices from 8 Australian bullion dealers.",
+    description: "Find Australian bullion dealers that buy back gold and silver. Search by postcode.",
   });
+
+  const DEALERS = [
+    { name:"Ainslie Bullion",   city:"Brisbane",  state:"QLD", postcode:"4000", url:"https://ainsliebullion.com.au/sell", phone:"1800 246 753", online:true,  instore:true,  gold:true,  silver:true,  note:"Competitive buyback — price on request online or in store." },
+    { name:"ABC Bullion",       city:"Sydney",    state:"NSW", postcode:"2000", url:"https://www.abcbullion.com.au/sell-gold", phone:"02 9231 4511", online:true,  instore:true,  gold:true,  silver:true,  note:"Live buyback prices published on website for ABC-branded products." },
+    { name:"Perth Mint",        city:"Perth",     state:"WA",  postcode:"6000", url:"https://www.perthmint.com/sell-gold", phone:"1300 201 112", online:true,  instore:true,  gold:true,  silver:true,  note:"Government-backed buyback program. Accepts Perth Mint products." },
+    { name:"KJC Bullion",       city:"Melbourne", state:"VIC", postcode:"3000", url:"https://www.kjc-gold-silver-bullion.com.au", phone:"03 9602 2544", online:false, instore:true,  gold:true,  silver:true,  note:"In-store buyback only. Contact for current prices." },
+    { name:"Jaggards",          city:"Sydney",    state:"NSW", postcode:"2000", url:"https://www.jaggards.com.au", phone:"02 9230 0886", online:false, instore:true,  gold:true,  silver:false, note:"In-store buyback. One of Sydney's oldest dealers." },
+    { name:"Guardian Gold",     city:"Melbourne", state:"VIC", postcode:"3000", url:"https://guardian-gold.com.au/sell-bullion", phone:"03 9629 2122", online:false, instore:true,  gold:true,  silver:true,  note:"Vault-based buyback through Guardian Vaults facilities." },
+    { name:"Swan Bullion",      city:"Perth",     state:"WA",  postcode:"6000", url:"https://swanbullion.com", phone:"", online:true,  instore:false, gold:true,  silver:true,  note:"Online buyback enquiry. Contact for current offer." },
+    { name:"Gold Stackers",     city:"Melbourne", state:"VIC", postcode:"3000", url:"https://www.goldstackers.com.au", phone:"1300 618 363", online:true,  instore:true,  gold:true,  silver:true,  note:"Buyback available online and in store. Price on request." },
+  ];
+
+  // Simple postcode → state distance sort (approximate by state proximity)
+  const STATE_ORDER = {
+    "NSW":["NSW","ACT","VIC","QLD","SA","WA","TAS","NT"],
+    "VIC":["VIC","NSW","ACT","SA","QLD","TAS","WA","NT"],
+    "QLD":["QLD","NSW","ACT","NT","SA","VIC","WA","TAS"],
+    "WA": ["WA","SA","NT","VIC","NSW","ACT","QLD","TAS"],
+    "SA": ["SA","VIC","NSW","WA","QLD","NT","ACT","TAS"],
+    "TAS":["TAS","VIC","NSW","ACT","SA","QLD","WA","NT"],
+    "ACT":["ACT","NSW","VIC","SA","QLD","WA","NT","TAS"],
+    "NT": ["NT","QLD","SA","WA","NSW","VIC","ACT","TAS"],
+  };
+
+  function postcodeToState(pc) {
+    const n = parseInt(pc);
+    if (n>=2000&&n<=2999) return "NSW";
+    if (n>=3000&&n<=3999) return "VIC";
+    if (n>=4000&&n<=4999) return "QLD";
+    if (n>=5000&&n<=5999) return "SA";
+    if (n>=6000&&n<=6999) return "WA";
+    if (n>=7000&&n<=7999) return "TAS";
+    if (n>=800 &&n<=899)  return "NT";
+    if (n>=200 &&n<=299)  return "ACT";
+    return null;
+  }
+
+  const userState  = postcodeToState(postcode);
+  const stateOrder = STATE_ORDER[userState] || [];
+
+  const filtered = DEALERS
+    .filter(d => metal === "gold" ? d.gold : d.silver)
+    .sort(function(a, b) {
+      const ai = stateOrder.indexOf(a.state);
+      const bi = stateOrder.indexOf(b.state);
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+
+  const TC = { gold:{ bg:"#FEF9C3", color:"#854D0E" }, silver:{ bg:"#F1F5F9", color:"#475569" } };
+
   return (
-    <div style={{ minHeight: "100vh", background: BG }}>
+    <div style={{ minHeight:"100vh", background:BG }}>
       <Header goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: mobile ? "40px 16px" : "80px 24px", textAlign: "center" }}>
-        <div style={{ fontSize: 40, marginBottom: 16 }}>💰</div>
-        <h1 style={{ fontSize: mobile ? 22 : 30, fontWeight: 700, color: NAVY, marginBottom: 12, fontFamily: "'Inter',system-ui,sans-serif" }}>Sell Your Bullion</h1>
-        <p style={{ fontSize: 14, color: MUTED, lineHeight: 1.8, marginBottom: 24 }}>Compare buyback prices from all 8 Australian dealers. Coming soon.</p>
-        <button onClick={() => navigate("/")} style={{ background: NAVY, color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-          Back to Compare →
-        </button>
+      <div style={{ maxWidth:800, margin:"0 auto", padding: mobile ? "20px 14px 60px" : "32px 24px 60px" }}>
+
+        <div style={{ marginBottom:24 }}>
+          <h1 style={{ fontSize:mobile?20:26, fontWeight:700, color:NAVY, margin:"0 0 6px", fontFamily:"'Inter',system-ui,sans-serif" }}>Sell Your Bullion</h1>
+          <p style={{ fontSize:13, color:MUTED, margin:0 }}>Find Australian dealers that buy back gold and silver — sorted by proximity to you</p>
+        </div>
+
+        {/* Search bar */}
+        <div style={{ background:"#fff", borderRadius:10, border:"1px solid "+BORDER, padding:"16px 20px", marginBottom:20, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+          <div style={{ display:"flex", gap:10, flexWrap:"wrap", alignItems:"flex-end" }}>
+            <div style={{ flex:"1 1 160px" }}>
+              <div style={{ fontSize:11, fontWeight:600, color:MUTED, marginBottom:6 }}>Your postcode</div>
+              <input
+                value={postcode}
+                onChange={function(e){ setPostcode(e.target.value.replace(/D/g,"").slice(0,4)); }}
+                onKeyDown={function(e){ if(e.key==="Enter") setSearched(true); }}
+                placeholder="e.g. 2000"
+                style={{ width:"100%", fontSize:14, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, outline:"none", boxSizing:"border-box" }}
+              />
+            </div>
+            <div style={{ flex:"1 1 160px" }}>
+              <div style={{ fontSize:11, fontWeight:600, color:MUTED, marginBottom:6 }}>Metal</div>
+              <div style={{ display:"flex", gap:6 }}>
+                {["gold","silver"].map(function(m){ return (
+                  <button key={m} onClick={()=>setMetal(m)} style={{ flex:1, background:metal===m?NAVY:"#fff", color:metal===m?"#fff":SLATE, border:"1px solid "+(metal===m?NAVY:BORDER), borderRadius:7, padding:"9px 0", fontSize:13, fontWeight:metal===m?600:400, cursor:"pointer", fontFamily:"inherit", textTransform:"capitalize" }}>{m}</button>
+                ); })}
+              </div>
+            </div>
+            <button
+              onClick={()=>setSearched(true)}
+              style={{ flex:"0 0 auto", background:NAVY, color:"#fff", border:"none", borderRadius:7, padding:"9px 20px", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+              Search →
+            </button>
+          </div>
+          {postcode.length===4 && !userState && (
+            <div style={{ fontSize:11, color:"#DC2626", marginTop:8 }}>Please enter a valid Australian postcode</div>
+          )}
+        </div>
+
+        {/* Results */}
+        <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+          {filtered.map(function(d, i) {
+            const isLocal = d.state === userState;
+            return (
+              <div key={d.name} style={{ background:"#fff", borderRadius:10, border:"1px solid "+(isLocal&&searched?"#C9A84C":BORDER), padding:"16px 20px", boxShadow:"0 1px 3px rgba(0,0,0,.04)", position:"relative" }}>
+                {isLocal && searched && (
+                  <div style={{ position:"absolute", top:12, right:14, fontSize:9, fontWeight:700, background:"#FEF9C3", color:"#854D0E", padding:"2px 8px", borderRadius:10, textTransform:"uppercase", letterSpacing:"0.05em" }}>Nearest</div>
+                )}
+                <div style={{ display:"flex", alignItems:"flex-start", gap:12, flexWrap:"wrap" }}>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4, flexWrap:"wrap" }}>
+                      <span style={{ fontSize:14, fontWeight:700, color:NAVY }}>{d.name}</span>
+                      <span style={{ fontSize:11, color:MUTED }}>📍 {d.city}, {d.state}</span>
+                    </div>
+                    <div style={{ display:"flex", gap:6, marginBottom:8, flexWrap:"wrap" }}>
+                      {d.online   && <span style={{ fontSize:10, background:"#F0FDF4", color:"#16A34A", border:"1px solid #BBF7D0", borderRadius:6, padding:"2px 8px", fontWeight:600 }}>Online buyback</span>}
+                      {d.instore  && <span style={{ fontSize:10, background:"#EFF6FF", color:"#1D4ED8", border:"1px solid #BFDBFE", borderRadius:6, padding:"2px 8px", fontWeight:600 }}>In-store</span>}
+                      {d.gold     && <span style={{ fontSize:10, background:"#FEF9C3", color:"#854D0E", border:"1px solid #FDE68A", borderRadius:6, padding:"2px 8px" }}>Gold</span>}
+                      {d.silver   && <span style={{ fontSize:10, background:"#F1F5F9", color:"#475569", border:"1px solid #CBD5E1", borderRadius:6, padding:"2px 8px" }}>Silver</span>}
+                    </div>
+                    <p style={{ fontSize:12, color:SLATE, margin:"0 0 8px", lineHeight:1.6 }}>{d.note}</p>
+                    {d.phone && <div style={{ fontSize:12, color:MUTED }}>{"📞 " + d.phone}</div>}
+                  </div>
+                  <div style={{ display:"flex", flexDirection:"column", gap:6, alignSelf:"center", flexShrink:0 }}>
+                    <span onClick={()=>navigate("/dealers/"+d.name.toLowerCase().replace(/s+/g,"-").replace(/[^a-z0-9-]/g,""))}
+                      style={{ fontSize:11, fontWeight:600, color:NAVY, cursor:"pointer", textAlign:"center", padding:"6px 14px", border:"1px solid "+BORDER, borderRadius:6, background:"#fff" }}
+                      onMouseEnter={function(e){e.currentTarget.style.background=BG;}}
+                      onMouseLeave={function(e){e.currentTarget.style.background="#fff";}}>
+                      View dealer
+                    </span>
+                    <a href={d.url} target="_blank" rel="noreferrer"
+                      style={{ fontSize:11, color:MUTED, textDecoration:"none", textAlign:"center", padding:"4px 0" }}>
+                      Visit website ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <p style={{ fontSize:11, color:MUTED, marginTop:20, textAlign:"center" }}>
+          {"Sell prices vary daily. Always confirm current buyback price directly with the dealer before selling."}
+        </p>
       </div>
     </div>
   );
@@ -2197,6 +2285,137 @@ function ScrollToTop() {
   return null;
 }
 
+
+function CalculatorPage({ goldSpot, silverSpot }) {
+  const mobile = useIsMobile();
+  const navigate = useNavigate();
+  const [metal, setMetal]   = useState("gold");
+  const [weight, setWeight] = useState("");
+  const [unit, setUnit]     = useState("oz");
+  const [purity, setPurity] = useState("999.9");
+  const [result, setResult] = useState(null);
+
+  useSEO({
+    title: "Gold & Silver Calculator Australia | GoldSilverPrices.com.au",
+    description: "Calculate the value of your gold or silver based on live spot prices.",
+  });
+
+  const PURITIES = {
+    gold:   [["999.9","24ct — 99.99%"],["999","23.98ct — 99.9%"],["916","22ct — 91.6%"],["750","18ct — 75%"],["585","14ct — 58.5%"],["375","9ct — 37.5%"]],
+    silver: [["999","Fine Silver 99.9%"],["925","Sterling Silver 92.5%"],["800","Silver 80%"]],
+  };
+  const UNITS = [["oz","Troy oz"],["g","Grams"],["kg","Kilograms"]];
+
+  function toOz(w, u) {
+    if (u==="oz") return parseFloat(w);
+    if (u==="g")  return parseFloat(w)/31.1035;
+    if (u==="kg") return parseFloat(w)/0.0311035;
+    return 0;
+  }
+
+  function calculate() {
+    const w = parseFloat(weight);
+    if (!w||w<=0) return;
+    const spot = metal==="gold" ? goldSpot : silverSpot;
+    if (!spot) return;
+    const oz   = toOz(w, unit);
+    const pur  = parseFloat(purity)/1000;
+    const gross = spot * oz * pur;
+    setResult({ gross, low:gross*0.92, high:gross*0.97, spot, oz:oz*pur, metal });
+  }
+
+  const fmtA = (n) => "A$"+n.toLocaleString("en-AU",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  return (
+    <div style={{ minHeight:"100vh", background:BG }}>
+      <Header goldSpot={goldSpot} silverSpot={silverSpot} />
+      <div style={{ maxWidth:560, margin:"0 auto", padding: mobile?"20px 14px 60px":"36px 24px 60px" }}>
+
+        <div style={{ fontSize:11, color:MUTED, marginBottom:16, display:"flex", gap:5 }}>
+          <span onClick={()=>navigate("/")} style={{ cursor:"pointer", color:NAVY }}>Home</span>
+          <span>{"›"}</span>
+          <span style={{ color:SLATE }}>Calculator</span>
+        </div>
+
+        <div style={{ marginBottom:20 }}>
+          <h1 style={{ fontSize:mobile?20:24, fontWeight:700, color:NAVY, margin:"0 0 6px", fontFamily:"'Inter',system-ui,sans-serif" }}>Gold & Silver Calculator</h1>
+          <p style={{ fontSize:13, color:MUTED, margin:0 }}>Estimate the value of your bullion using live spot prices</p>
+        </div>
+
+        <div style={{ background:"#fff", borderRadius:10, border:"1px solid "+BORDER, padding:"20px", marginBottom:16, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+          <div style={{ marginBottom:16 }}>
+            <div style={{ fontSize:11, fontWeight:600, color:MUTED, marginBottom:8 }}>Metal</div>
+            <div style={{ display:"flex", gap:8 }}>
+              {["gold","silver"].map(function(m){ return (
+                <button key={m} onClick={()=>{setMetal(m);setPurity(m==="gold"?"999.9":"999");setResult(null);}}
+                  style={{ flex:1, padding:"10px 0", fontSize:13, fontWeight:metal===m?600:400, background:metal===m?NAVY:"#fff", color:metal===m?"#fff":SLATE, border:"1px solid "+(metal===m?NAVY:BORDER), borderRadius:7, cursor:"pointer", fontFamily:"inherit" }}>
+                  {m==="gold"?"🥇 Gold":"🥈 Silver"}
+                </button>
+              ); })}
+            </div>
+          </div>
+
+          <div style={{ marginBottom:16 }}>
+            <div style={{ fontSize:11, fontWeight:600, color:MUTED, marginBottom:8 }}>Weight</div>
+            <div style={{ display:"flex", gap:8 }}>
+              <input value={weight} onChange={function(e){setWeight(e.target.value);setResult(null);}} placeholder="e.g. 1"
+                style={{ flex:1, minWidth:0, fontSize:14, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, outline:"none", width:"100%", boxSizing:"border-box" }} />
+              <select value={unit} onChange={function(e){setUnit(e.target.value);setResult(null);}}
+                style={{ fontSize:13, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, background:"#fff", outline:"none" }}>
+                {UNITS.map(function(u){ return <option key={u[0]} value={u[0]}>{u[1]}</option>; })}
+              </select>
+            </div>
+          </div>
+
+          <div style={{ marginBottom:20 }}>
+            <div style={{ fontSize:11, fontWeight:600, color:MUTED, marginBottom:8 }}>Purity</div>
+            <select value={purity} onChange={function(e){setPurity(e.target.value);setResult(null);}}
+              style={{ width:"100%", fontSize:13, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, background:"#fff", outline:"none" }}>
+              {PURITIES[metal].map(function(p){ return <option key={p[0]} value={p[0]}>{p[1]}</option>; })}
+            </select>
+          </div>
+
+          <button onClick={calculate}
+            style={{ width:"100%", background:NAVY, color:"#fff", border:"none", borderRadius:8, padding:"12px 0", fontSize:14, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+            Calculate →
+          </button>
+        </div>
+
+        {result && (
+          <div style={{ background:"#fff", borderRadius:10, border:"1px solid "+BORDER, padding:"20px", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+            <div style={{ fontSize:11, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:16 }}>Estimated Value</div>
+            <div style={{ textAlign:"center", padding:"8px 0 20px" }}>
+              <div style={{ fontSize:11, color:MUTED, marginBottom:4 }}>Spot value (fine metal)</div>
+              <div style={{ fontSize:34, fontWeight:700, color:NAVY, fontFamily:"'Inter',system-ui,sans-serif" }}>{fmtA(result.gross)}</div>
+              <div style={{ fontSize:11, color:MUTED, marginTop:4 }}>{"Based on "+result.oz.toFixed(4)+" oz fine at A$"+result.spot.toLocaleString("en-AU")+"/oz"}</div>
+            </div>
+            <div style={{ borderTop:"1px solid "+BORDER, paddingTop:16, marginBottom:16 }}>
+              <div style={{ fontSize:11, fontWeight:700, color:MUTED, textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:12 }}>Typical dealer buyback range</div>
+              <div style={{ display:"flex", gap:8 }}>
+                <div style={{ flex:1, background:BG, borderRadius:8, padding:"12px 14px", textAlign:"center" }}>
+                  <div style={{ fontSize:10, color:MUTED, marginBottom:4 }}>Conservative (92%)</div>
+                  <div style={{ fontSize:16, fontWeight:700, color:NAVY }}>{fmtA(result.low)}</div>
+                </div>
+                <div style={{ flex:1, background:BG, borderRadius:8, padding:"12px 14px", textAlign:"center" }}>
+                  <div style={{ fontSize:10, color:MUTED, marginBottom:4 }}>Optimistic (97%)</div>
+                  <div style={{ fontSize:16, fontWeight:700, color:NAVY }}>{fmtA(result.high)}</div>
+                </div>
+              </div>
+            </div>
+            <p style={{ fontSize:11, color:MUTED, margin:"0 0 14px", lineHeight:1.7 }}>Buyback rates vary by dealer, product and market conditions. Always confirm directly with the dealer before selling.</p>
+            <button onClick={()=>navigate("/sell")}
+              style={{ width:"100%", background:"#fff", color:NAVY, border:"1px solid "+BORDER, borderRadius:8, padding:"10px 0", fontSize:13, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+              {"Find dealers that buy "+result.metal+" →"}
+            </button>
+          </div>
+        )}
+
+        {!goldSpot && <p style={{ fontSize:11, color:MUTED, marginTop:12, textAlign:"center" }}>{"⚠️ Spot price loading — please wait"}</p>}
+      </div>
+    </div>
+  );
+}
+
 function AppInner() {
   const [rows, setRows]             = useState([]);
   const [updated, setUpdated]       = useState(null);
@@ -2294,6 +2513,7 @@ function AppInner() {
               <Route path="/silver/coins"  element={<ProductRegistryPage metal="silver" category="coin" goldSpot={goldSpot} silverSpot={silverSpot} />} />
               <Route path="/gold/bars"     element={<ProductRegistryPage metal="gold"   category="bar"  goldSpot={goldSpot} silverSpot={silverSpot} />} />
               <Route path="/silver/bars"   element={<ProductRegistryPage metal="silver" category="bar"  goldSpot={goldSpot} silverSpot={silverSpot} />} />
+              <Route path="/calculator" element={<CalculatorPage goldSpot={goldSpot} silverSpot={silverSpot} />} />
               <Route path="/sell" element={<SellPage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
       <Route path="/magazine/:slug" element={<ArticlePage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
               <Route path="/about"      element={<AboutPage      goldSpot={goldSpot} silverSpot={silverSpot} />} />
