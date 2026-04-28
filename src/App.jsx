@@ -1203,7 +1203,7 @@ function SellPage({ goldSpot, silverSpot, updated }) {
                 onChange={function(e){ setPostcode(e.target.value.replace(/D/g,"").slice(0,4)); }}
                 onKeyDown={function(e){ if(e.key==="Enter") setSearched(true); }}
                 placeholder="e.g. 2000"
-                style={{ width:"100%", fontSize:14, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, outline:"none", boxSizing:"border-box" }}
+                style={{ width:"100%", fontSize:14, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, outline:"none", boxSizing:"border-box", background:"#fff", WebkitAppearance:"none" }}
               />
             </div>
             <div style={{ flex:"1 1 160px" }}>
@@ -2359,7 +2359,7 @@ function CalculatorPage({ goldSpot, silverSpot }) {
             <div style={{ fontSize:11, fontWeight:600, color:MUTED, marginBottom:8 }}>Weight</div>
             <div style={{ display:"flex", gap:8 }}>
               <input value={weight} onChange={function(e){setWeight(e.target.value);setResult(null);}} placeholder="e.g. 1"
-                style={{ flex:1, minWidth:0, fontSize:14, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, outline:"none", width:"100%", boxSizing:"border-box" }} />
+                style={{ flex:1, minWidth:0, fontSize:14, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, outline:"none", width:"100%", boxSizing:"border-box", background:"#fff", WebkitAppearance:"none" }} />
               <select value={unit} onChange={function(e){setUnit(e.target.value);setResult(null);}}
                 style={{ fontSize:13, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, background:"#fff", outline:"none" }}>
                 {UNITS.map(function(u){ return <option key={u[0]} value={u[0]}>{u[1]}</option>; })}
@@ -2370,7 +2370,7 @@ function CalculatorPage({ goldSpot, silverSpot }) {
           <div style={{ marginBottom:20 }}>
             <div style={{ fontSize:11, fontWeight:600, color:MUTED, marginBottom:8 }}>Purity</div>
             <select value={purity} onChange={function(e){setPurity(e.target.value);setResult(null);}}
-              style={{ width:"100%", fontSize:13, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, background:"#fff", outline:"none" }}>
+              style={{ width:"100%", fontSize:13, padding:"9px 12px", border:"1px solid "+BORDER, borderRadius:7, fontFamily:"inherit", color:NAVY, background:"#fff", outline:"none", WebkitAppearance:"auto" }}>
               {PURITIES[metal].map(function(p){ return <option key={p[0]} value={p[0]}>{p[1]}</option>; })}
             </select>
           </div>
