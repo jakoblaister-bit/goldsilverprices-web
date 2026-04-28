@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation } from "react-router-dom";
 
 const supabase = createClient(
   "https://cjxkhvkvhgnlnviykoad.supabase.co",
@@ -2074,9 +2074,9 @@ function P({ children }) {
   return <p style={{ fontSize:13, color:SLATE, lineHeight:1.85, margin:"0 0 10px" }}>{children}</p>;
 }
 
-function AboutPage() {
+function AboutPage({ goldSpot, silverSpot }) {
   return (
-    <StaticPage title="About GoldSilverPrices.com.au">
+    <StaticPage goldSpot={goldSpot} silverSpot={silverSpot} title="About GoldSilverPrices.com.au">
       <Section h="What we do">
         <P>GoldSilverPrices.com.au is an independent price comparison service for Australian bullion buyers. We track buy prices from major Australian dealers twice daily so you can find the lowest premium without visiting multiple websites.</P>
         <P>We cover gold and silver coins, cast bars, and minted bars from dealers including Ainslie Bullion, ABC Bullion, Perth Mint, KJC, Jaggards, Swan Bullion, and Guardian Gold.</P>
@@ -2096,9 +2096,9 @@ function AboutPage() {
   );
 }
 
-function PrivacyPage() {
+function PrivacyPage({ goldSpot, silverSpot }) {
   return (
-    <StaticPage title="Privacy Policy">
+    <StaticPage goldSpot={goldSpot} silverSpot={silverSpot} title="Privacy Policy">
       <Section>
         <P>Last updated: April 2026</P>
       </Section>
@@ -2170,9 +2170,9 @@ function ContactPage({ goldSpot, silverSpot }) {
   );
 }
 
-function DisclaimerPage() {
+function DisclaimerPage({ goldSpot, silverSpot }) {
   return (
-    <StaticPage title="Disclaimer">
+    <StaticPage goldSpot={goldSpot} silverSpot={silverSpot} title="Disclaimer">
       <Section h="Not financial advice">
         <P>The information on GoldSilverPrices.com.au is for informational purposes only. Nothing on this site constitutes financial advice, investment advice, or a recommendation to buy or sell any asset.</P>
         <P>Precious metals prices are volatile. Past performance does not guarantee future results. Always do your own research before making any investment decision.</P>
@@ -2189,6 +2189,12 @@ function DisclaimerPage() {
       </Section>
     </StaticPage>
   );
+}
+
+function ScrollToTop() {
+  const location = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
+  return null;
 }
 
 function AppInner() {
@@ -2274,6 +2280,7 @@ function AppInner() {
 
   return (
     <>
+    <ScrollToTop />
     <Routes>
       <Route path="/" element={<HomePage {...sharedProps} />} />
       <Route path="/:metal/coin/:coinType" element={<ProductPage {...sharedProps} />} />
@@ -2289,10 +2296,10 @@ function AppInner() {
               <Route path="/silver/bars"   element={<ProductRegistryPage metal="silver" category="bar"  goldSpot={goldSpot} silverSpot={silverSpot} />} />
               <Route path="/sell" element={<SellPage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
       <Route path="/magazine/:slug" element={<ArticlePage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
-              <Route path="/about"      element={<AboutPage />} />
-              <Route path="/privacy"    element={<PrivacyPage />} />
-              <Route path="/contact"    element={<ContactPage />} />
-              <Route path="/disclaimer" element={<DisclaimerPage />} />
+              <Route path="/about"      element={<AboutPage      goldSpot={goldSpot} silverSpot={silverSpot} />} />
+              <Route path="/privacy"    element={<PrivacyPage    goldSpot={goldSpot} silverSpot={silverSpot} />} />
+              <Route path="/contact"    element={<ContactPage    goldSpot={goldSpot} silverSpot={silverSpot} />} />
+              <Route path="/disclaimer" element={<DisclaimerPage goldSpot={goldSpot} silverSpot={silverSpot} />} />
               <Route path="/magazine" element={<MagazinePage goldSpot={goldSpot} silverSpot={silverSpot} updated={updated} />} />
     </Routes>
     <Footer />
