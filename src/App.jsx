@@ -1431,10 +1431,9 @@ function SellCategoryPage({ goldSpot, silverSpot, updated }) {
             <table style={{width:"100%",borderCollapse:"collapse"}}>
               <thead>
                 <tr style={{background:"#F8FAFC"}}>
-                  <th style={{fontSize:10,fontWeight:600,color:MUTED,textAlign:"left",  padding:"10px 16px",borderBottom:"1px solid "+BORDER}}>Dealer</th>
-                  <th style={{fontSize:10,fontWeight:600,color:MUTED,textAlign:"right", padding:"10px 16px",borderBottom:"1px solid "+BORDER}}>Buyback offer</th>
-                  <th style={{fontSize:10,fontWeight:600,color:MUTED,textAlign:"right", padding:"10px 16px",borderBottom:"1px solid "+BORDER}}>vs spot</th>
-                  <th style={{fontSize:10,fontWeight:600,color:MUTED,textAlign:"center",padding:"10px 16px",borderBottom:"1px solid "+BORDER}}></th>
+                  <th style={{fontSize:10,fontWeight:600,color:MUTED,textAlign:"left",padding:"10px 16px",borderBottom:"1px solid "+BORDER}}>Dealer</th>
+                  <th style={{fontSize:10,fontWeight:600,color:MUTED,textAlign:"right",padding:"10px 16px",borderBottom:"1px solid "+BORDER}}>vs spot</th>
+                  <th style={{fontSize:10,fontWeight:600,color:MUTED,textAlign:"right",padding:"10px 16px",borderBottom:"1px solid "+BORDER}}>Buyback offer</th>
                 </tr>
               </thead>
               <tbody>
@@ -1443,18 +1442,15 @@ function SellCategoryPage({ goldSpot, silverSpot, updated }) {
                   const isBest = i===0;
                   const pct    = (spot&&price) ? ((price/(selOz*spot)-1)*100).toFixed(1) : null;
                   return (
-                    <tr key={d.key} style={{borderBottom:"1px solid #F1F5F9",background:isBest?"#FAFFFE":"#fff"}}>
-                      <td style={{padding:"14px 16px"}}>
+                    <tr key={d.key} onClick={()=>window.open(d.url,"_blank")} style={{borderBottom:"1px solid #F1F5F9",background:isBest?"#FAFFFE":"#fff",cursor:"pointer",borderLeft:isBest?"3px solid "+GREEN:"3px solid transparent"}}>
+                      <td style={{padding:mobile?"12px 12px":"14px 16px"}}>
                         <div style={{display:"flex",alignItems:"center",gap:8}}>
                           <span style={{fontSize:13,fontWeight:600,color:NAVY}}>{d.short}</span>
                           {isBest&&<span style={{fontSize:9,fontWeight:700,background:GREEN,color:"#fff",padding:"2px 7px",borderRadius:10,textTransform:"uppercase",letterSpacing:"0.05em"}}>Best</span>}
                         </div>
                       </td>
-                      <td style={{padding:"14px 16px",textAlign:"right",fontSize:15,fontWeight:isBest?700:500,color:isBest?GREEN:SLATE}}>{fmtAUD(price)}</td>
                       <td style={{padding:"14px 16px",textAlign:"right",fontSize:12,color:pct&&parseFloat(pct)>=0?GREEN:MUTED}}>{pct?(parseFloat(pct)>=0?"+":"")+pct+"%":"—"}</td>
-                      <td style={{padding:"14px 16px",textAlign:"center"}}>
-                        <a href={d.url} target="_blank" rel="noreferrer" style={{fontSize:11,color:NAVY,fontWeight:600,textDecoration:"none",padding:"5px 12px",border:"1px solid "+BORDER,borderRadius:6,whiteSpace:"nowrap"}}>Visit →</a>
-                      </td>
+                      <td style={{padding:mobile?"12px 12px":"14px 16px",textAlign:"right",fontSize:mobile?14:15,fontWeight:isBest?700:500,color:isBest?GREEN:SLATE,whiteSpace:"nowrap"}}>{fmtAUD(price)}</td>
                     </tr>
                   );
                 })}
