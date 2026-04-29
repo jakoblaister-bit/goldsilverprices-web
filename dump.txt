@@ -1,25 +1,12 @@
-function NavBar() {
-  const mobile = useIsMobile();
+function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
+  const { metal, barType, size } = useParams();
   const navigate = useNavigate();
-  const path = window.location.pathname;
+  const mobile   = useIsMobile();
 
-  const links = [
-    { label: "Buy",      path: "/",         desc: "Compare prices" },
-    { label: "Sell",     path: "/sell",      desc: "Sell your bullion" },
-    { label: "Dealers",  path: "/dealers",   desc: "All 8 dealers" },
-    { label: "Magazine", path: "/magazine",  desc: "Gold & silver news" },
-  ];
 
-  const isActive = (p) => p === "/" ? path === "/" : path.startsWith(p);
+  const spot    = metal === "gold" ? goldSpot : silverSpot;
 
-  return (
-    <div style={{
-      background: "#0F2A44",
-      borderTop: "1px solid rgba(255,255,255,0.06)",
-      borderBottom: "1px solid rgba(0,0,0,0.2)",
-    }}>
-      <div style={{
-        maxWidth: 1100,
-        margin: "0 auto",
-        display: "flex",
-        justifyContent
+  // Parse size — e.g. "1oz" → weight_oz=1, "1g" → weight_g=1
+  const isGram    = size.endsWith("g");
+  const sizeNum   = parseFloat(size);
+  const tabLabel  = (barType === "cast" ? "Cast" : "Minted") + " " + (metal === "gold" ? "Gold" : "Silver") + " Ba

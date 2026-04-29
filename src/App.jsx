@@ -647,6 +647,25 @@ function useSEO({ title, description }) {
 /* ══════════════════════════════════════════════════════════════════════════ */
 /* PRODUCT PAGE — /gold/coin/kangaroo                                         */
 /* ══════════════════════════════════════════════════════════════════════════ */
+const COIN_INFO = {
+  "Kangaroo":       { gold:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"1987" }, silver:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"1989" } },
+  "Kookaburra":     { gold:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"1990" }, silver:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"1990" } },
+  "Koala":          { gold:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"1987" }, silver:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"1987" } },
+  "Lunar":          { gold:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"1996" }, silver:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"1999" } },
+  "Emu":            { gold:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"2018" }, silver:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"2018" } },
+  "Swan":           { gold:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"2017" }, silver:{ country:"Australia", mint:"Perth Mint",         fineness:"99.99%", since:"2017" } },
+  "Maple Leaf":     { gold:{ country:"Canada",    mint:"Royal Canadian Mint",fineness:"99.99%", since:"1979" }, silver:{ country:"Canada",    mint:"Royal Canadian Mint",fineness:"99.99%", since:"1988" } },
+  "Krugerrand":     { gold:{ country:"S. Africa", mint:"South African Mint", fineness:"91.67%", since:"1967" }, silver:{ country:"S. Africa", mint:"South African Mint", fineness:"99.99%", since:"2017" } },
+  "Britannia":      { gold:{ country:"UK",        mint:"The Royal Mint",     fineness:"99.99%", since:"1987" }, silver:{ country:"UK",        mint:"The Royal Mint",     fineness:"99.99%", since:"1997" } },
+  "Philharmonic":   { gold:{ country:"Austria",   mint:"Austrian Mint",      fineness:"99.99%", since:"1989" }, silver:{ country:"Austria",   mint:"Austrian Mint",      fineness:"99.99%", since:"2008" } },
+  "American Eagle": { gold:{ country:"USA",       mint:"US Mint",            fineness:"91.67%", since:"1986" }, silver:{ country:"USA",       mint:"US Mint",            fineness:"99.93%", since:"1986" } },
+  "Buffalo":        { gold:{ country:"USA",       mint:"US Mint",            fineness:"99.99%", since:"2006" }, silver:null },
+  "Panda":          { gold:{ country:"China",     mint:"China Mint",         fineness:"99.9%",  since:"1982" }, silver:{ country:"China",     mint:"China Mint",         fineness:"99.9%",  since:"1983" } },
+  "Libertad":       { gold:{ country:"Mexico",    mint:"Mexican Mint",       fineness:"99.99%", since:"1981" }, silver:{ country:"Mexico",    mint:"Mexican Mint",       fineness:"99.9%",  since:"1982" } },
+  "Southern Cross": { gold:{ country:"Australia", mint:"ABC Refinery",       fineness:"99.99%", since:"2019" }, silver:{ country:"Australia", mint:"ABC Refinery",       fineness:"99.99%", since:"2019" } },
+  "Generic":        { gold:{ country:"Various",   mint:"Various",            fineness:"99.99%", since:"—"    }, silver:{ country:"Various",   mint:"Various",            fineness:"99.9%",  since:"—"    } },
+};
+
 function ProductPage({ rows, goldSpot, silverSpot, updated }) {
   const { metal, coinType } = useParams();
   const navigate = useNavigate();
@@ -719,7 +738,7 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
         </p>
 
         {/* Coin info — NO weight here */}
-        {COIN_INFO[coinTypeDisplay] && (
+        {COIN_INFO[coinTypeDisplay]?.[metal] && (
           <div style={{
             background: "#fff", borderRadius: 10,
             border: `1px solid ${BORDER}`,
@@ -727,10 +746,10 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
             display: "flex", gap: 20, flexWrap: "wrap",
           }}>
             {[
-              { label: "Country",  val: COIN_INFO[coinTypeDisplay].country },
-              { label: "Mint",     val: COIN_INFO[coinTypeDisplay].mint },
-              { label: "Fineness", val: COIN_INFO[coinTypeDisplay].fineness },
-              { label: "Since",    val: COIN_INFO[coinTypeDisplay].since },
+              { label: "Country",  val: COIN_INFO[coinTypeDisplay][metal].country },
+              { label: "Mint",     val: COIN_INFO[coinTypeDisplay][metal].mint },
+              { label: "Fineness", val: COIN_INFO[coinTypeDisplay][metal].fineness },
+              { label: "Since",    val: COIN_INFO[coinTypeDisplay][metal].since },
               { label: "Metal",    val: metal === "gold" ? "Gold" : "Silver" },
             ].map(item => (
               <div key={item.label}>
