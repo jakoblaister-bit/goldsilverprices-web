@@ -682,6 +682,20 @@ const COIN_INFO = {
   "Generic":        { gold:{ country:"Various",   mint:"Various",            fineness:"99.99%", since:"—"    }, silver:{ country:"Various",   mint:"Various",            fineness:"99.9%",  since:"—"    } },
 };
 
+const DEALER_URLS = {
+  "Perth Mint":            "https://www.perthmint.com",
+  "ABC Bullion":           "https://www.abcbullion.com.au",
+  "Ainslie Bullion":       "https://ainsliebullion.com.au",
+  "KJC Bullion":           "https://www.kjc-gold-silver-bullion.com.au",
+  "Jaggards":              "https://www.jaggards.com.au",
+  "Swan Bullion":          "https://swanbullion.com",
+  "Gold Stackers":         "https://www.goldstackers.com.au",
+  "Guardian Gold":         "https://guardian-gold.com.au",
+  "Bullion Now":           "https://bullionfirst.com.au",
+  "Melbourne Gold Company":"https://melbournegold.com.au",
+  "Imperial Bullion":      "https://www.imperialbullion.com.au",
+};
+
 function ProductPage({ rows, goldSpot, silverSpot, updated }) {
   const { metal, coinType } = useParams();
   const navigate = useNavigate();
@@ -721,8 +735,8 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
   const saving  = highest && lowest ? highest - lowest : 0;
 
   useSEO({
-    title: `${coinTypeDisplay} Gold Coin Price Australia | GoldSilverPrices.com.au`,
-    description: `Compare ${coinTypeDisplay} prices from Australian bullion dealers. Find the cheapest price updated twice daily.`,
+    title: `${coinTypeDisplay} ${metal === "gold" ? "Gold" : "Silver"} Coin Price Australia | GoldSilverPrices.com.au`,
+    description: `Compare ${coinTypeDisplay} ${metal} coin prices from Australian bullion dealers. Find the cheapest price updated twice daily.`,
   });
 
   const premColor = (p) =>
@@ -859,10 +873,11 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
           {dealers.length === 0
             ? <div style={{ padding: "24px 14px", textAlign: "center", color: MUTED, fontSize: 13 }}>No data for {selWeight}</div>
             : dealers.map((r, i) => {
-                const p = spot > 0 ? ((r.buy_price / spot - 1) * 100) : null;
+                const spotForWeight = spot * targetOz;
+                const p = spotForWeight > 0 ? ((r.buy_price / spotForWeight - 1) * 100) : null;
                 const isLowest = i === 0;
                 return (
-                  <a key={r.dealer} href={r.url} target="_blank" rel="noreferrer" style={{
+                  <a key={r.dealer} href={DEALER_URLS[r.dealer] || "#"} target="_blank" rel="noreferrer" style={{
                     display: "grid",
                     gridTemplateColumns: mobile ? "1fr auto auto" : "1fr 80px auto auto",
                     alignItems: "center",
@@ -923,8 +938,8 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
             }}>
               <span>
                 Cheapest: <strong style={{ color: GREEN }}>{fmt(lowest)}</strong>
-                {spot > 0 && lowest && (
-                  <> · Premium: <strong style={{ color: premColor(((lowest/spot)-1)*100) }}>+{(((lowest/spot)-1)*100).toFixed(2)}%</strong></>
+                {spot > 0 && lowest && targetOz > 0 && (
+                  <> · Premium: <strong style={{ color: premColor(((lowest/(spot*targetOz))-1)*100) }}>+{(((lowest/(spot*targetOz))-1)*100).toFixed(2)}%</strong></>
                 )}
               </span>
               <span>Updated twice daily</span>
@@ -965,7 +980,8 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
   // Parse size — e.g. "1oz" → weight_oz=1, "1g" → weight_g=1
   const isGram    = size.endsWith("g");
   const sizeNum   = parseFloat(size);
-  const tabLabel  = (barType === "cast" ? "Cast" : "Minted") + " " + (metal === "gold" ? "Gold" : "Silver") + " Bars";
+  const barTypeLabel = barType === "cast" ? "Cast" : barType === "minted" ? "Minted" : barType === "buyback" ? "Buyback" : barType;
+  const tabLabel  = barTypeLabel + " " + (metal === "gold" ? "Gold" : "Silver") + " Bars";
 
   const dealers = rows
     .filter(r => {
@@ -1064,7 +1080,7 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
                 const p = spotForSize > 0 ? ((r.buy_price / spotForSize - 1) * 100) : null;
                 const isLowest = i === 0;
                 return (
-                  <a key={r.dealer} href={r.url} target="_blank" rel="noreferrer" style={{
+                  <a key={r.dealer} href={DEALER_URLS[r.dealer] || "#"} target="_blank" rel="noreferrer" style={{
                     display: "grid",
                     gridTemplateColumns: mobile ? "1fr auto auto" : "1fr 80px auto auto",
                     alignItems: "center",
@@ -2124,7 +2140,7 @@ function ProductRegistryPage({ metal, category, goldSpot, silverSpot }) {
     async function load() {
       setLoading(true);
       try {
-        let q = supabase.from("prices_v2").select("coin_type,bar_brand,bar_type,weight_oz,weight_g,buy_price,dealer").eq("metal", metal).eq("category", category).order("buy_price", { ascending:true });
+        let q = supabase.from("prices_v2").select("coin_type,bar_brand,bar_type,weight_oz,weight_g,buy_price,dealer").eq("metal", metal).eq("category", category).eq("available", true).order("buy_price", { ascending:true });
         if (category === "coin") q = q.eq("weight_oz", 1);
         const { data, error } = await q;
         if (error) throw error;
@@ -2669,6 +2685,7 @@ function AppInner() {
       .from("prices_v2")
       .select("*")
       .eq("status", "OK")
+      .eq("available", true)
       .order("scraped_at", { ascending: false });
 
     if (error || !data) return;
