@@ -473,7 +473,9 @@ function BarsSection({ rows, goldSpot, silverSpot }) {
   // Group by size — one row per size, cheapest dealer
   const grouped = {};
   for (const r of filtered) {
-    const size  = r.weight_g && r.weight_g < 31.1035 ? `${r.weight_g}g` : `${r.weight_oz}oz`;
+    const size  = r.weight_g
+      ? (r.weight_g >= 1000 ? `${r.weight_g / 1000}kg` : `${r.weight_g}g`)
+      : r.weight_oz >= 30 ? `${Math.round(r.weight_oz / 32.1507)}kg` : `${r.weight_oz}oz`;
     const oz    = r.weight_oz || (r.weight_g / 31.1);
     const key   = size;
     if (!grouped[key]) grouped[key] = { size, oz, cheapest: r, count: 0 };
@@ -1034,8 +1036,9 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
 
   const spot    = metal === "gold" ? goldSpot : silverSpot;
 
-  // Parse size — e.g. "1oz" → weight_oz=1, "1g" → weight_g=1
-  const isGram    = size.endsWith("g");
+  // Parse size — e.g. "1oz" → weight_oz=1, "1g" → weight_g=1, "1kg" → weight_oz=32.1507
+  const isKg      = size.endsWith("kg");
+  const isGram    = !isKg && size.endsWith("g");
   const sizeNum   = parseFloat(size);
   const barTypeLabel = barType === "cast" ? "Cast" : barType === "minted" ? "Minted" : barType === "buyback" ? "Buyback" : barType;
   const tabLabel  = barTypeLabel + " " + (metal === "gold" ? "Gold" : "Silver") + " Bars";
@@ -1044,6 +1047,7 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
     .filter(r => {
       if (r.metal !== metal || r.category !== "bar") return false;
       if (r.bar_type !== barType) return false;
+      if (isKg)   return Math.abs((r.weight_oz || 0) - sizeNum * 32.1507) < 0.1;
       if (isGram) return Math.abs((r.weight_g || 0) - sizeNum) < 0.01;
       return Math.abs((r.weight_oz || 0) - sizeNum) < 0.001;
     })
@@ -1053,9 +1057,11 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
   const highest = dealers[dealers.length - 1]?.buy_price;
   const saving  = highest && lowest ? highest - lowest : 0;
 
-  const spotForSize = isGram
-    ? spot * (sizeNum / 31.1035)
-    : spot * sizeNum;
+  const spotForSize = isKg
+    ? spot * sizeNum * 32.1507
+    : isGram
+      ? spot * (sizeNum / 31.1035)
+      : spot * sizeNum;
 
   const premColor = (p) =>
     p === null ? MUTED : p < 2 ? GREEN : p < 4 ? AMBER : "#DC2626";
@@ -2275,7 +2281,9 @@ function ProductRegistryPage({ metal, category, goldSpot, silverSpot }) {
             link  = "/" + metal + "/coin/" + r.coin_type.toLowerCase().replace(/s+/g, "-");
             wOz   = 1;
           } else {
-            var wLabel = r.weight_g && r.weight_g < 31.1035 ? r.weight_g + "g" : r.weight_oz + "oz";
+            var wLabel = r.weight_g
+              ? (r.weight_g >= 1000 ? (r.weight_g / 1000) + "kg" : r.weight_g + "g")
+              : r.weight_oz >= 30 ? Math.round(r.weight_oz / 32.1507) + "kg" : r.weight_oz + "oz";
             key   = (r.bar_brand || "") + "|" + (r.bar_type || "") + "|" + wLabel;
             var ts = r.bar_type ? r.bar_type.charAt(0).toUpperCase() + r.bar_type.slice(1) : "";
             label = [r.bar_brand || "", ts, wLabel].filter(Boolean).join(" ");
