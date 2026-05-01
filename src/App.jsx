@@ -618,7 +618,7 @@ function Footer() {
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:40 }}>
               <div style={{ maxWidth:260 }}>
                 <div style={{ fontFamily:"'Inter',system-ui,sans-serif", fontSize:15, fontWeight:700, color:"#E2C97E", marginBottom:10 }}>GoldSilverPrices.com.au</div>
-                <div style={{ fontSize:12, color:"#64748B", lineHeight:1.75 }}>Independent bullion price comparison for Australian investors. Updated twice daily. Not financial advice.</div>
+                <div style={{ fontSize:12, color:"#64748B", lineHeight:1.75 }}>Independent bullion price comparison for Australian investors. Updated every 3 hours. Not financial advice.</div>
               </div>
               <div style={{ display:"flex", gap:80 }}>
                 <div>
@@ -633,7 +633,7 @@ function Footer() {
             </div>
             <div style={{ borderTop:"1px solid #1E3A5F", paddingTop:20, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div style={{ fontSize:11, color:"#475569" }}>{"© 2026 GoldSilverPrices.com.au · All rights reserved"}</div>
-              <div style={{ fontSize:11, color:"#475569" }}>{"Prices updated twice daily · Not financial advice"}</div>
+              <div style={{ fontSize:11, color:"#475569" }}>{"Prices updated every 3 hours · Not financial advice"}</div>
             </div>
           </>
         )}
@@ -761,48 +761,46 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
 
         {/* Hero — coin image left, title + specs right */}
         <div style={{
-          display: "flex", gap: 24, marginBottom: 20,
-          flexDirection: mobile ? "column" : "row",
+          display: "flex", gap: mobile ? 14 : 24, marginBottom: 20,
+          flexDirection: "row",
           alignItems: "flex-start",
         }}>
-          {!mobile && (
-            <div style={{ flexShrink: 0 }}>
+          <div style={{ flexShrink: 0 }}>
+            <div style={{
+              width: mobile ? 90 : 164, height: mobile ? 90 : 164, borderRadius: "50%",
+              background: metal === "gold"
+                ? "radial-gradient(circle at 38% 30%, #FEF3A7, #E8B90A 45%, #A07008 75%, #7A5205)"
+                : "radial-gradient(circle at 38% 30%, #FFFFFF, #D4DFE8 45%, #96A8B8 75%, #6B7F90)",
+              boxShadow: metal === "gold"
+                ? "0 8px 28px rgba(180,130,0,0.35), inset 0 2px 6px rgba(255,255,255,0.5)"
+                : "0 8px 28px rgba(100,130,160,0.3), inset 0 2px 6px rgba(255,255,255,0.6)",
+              border: `2px solid ${metal === "gold" ? "#C8950A" : "#8899AA"}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
               <div style={{
-                width: 164, height: 164, borderRadius: "50%",
+                width: "62%", height: "62%", borderRadius: "50%",
                 background: metal === "gold"
-                  ? "radial-gradient(circle at 38% 30%, #FEF3A7, #E8B90A 45%, #A07008 75%, #7A5205)"
-                  : "radial-gradient(circle at 38% 30%, #FFFFFF, #D4DFE8 45%, #96A8B8 75%, #6B7F90)",
-                boxShadow: metal === "gold"
-                  ? "0 8px 28px rgba(180,130,0,0.35), inset 0 2px 6px rgba(255,255,255,0.5)"
-                  : "0 8px 28px rgba(100,130,160,0.3), inset 0 2px 6px rgba(255,255,255,0.6)",
-                border: `2px solid ${metal === "gold" ? "#C8950A" : "#8899AA"}`,
+                  ? "radial-gradient(circle at 40% 35%, #FEF8C0, #D4A010 50%, #9A7010)"
+                  : "radial-gradient(circle at 40% 35%, #F8FBFD, #B8C8D8 50%, #7888A0)",
+                border: `1px solid ${metal === "gold" ? "rgba(200,149,10,0.4)" : "rgba(136,153,170,0.4)"}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
-                <div style={{
-                  width: "62%", height: "62%", borderRadius: "50%",
-                  background: metal === "gold"
-                    ? "radial-gradient(circle at 40% 35%, #FEF8C0, #D4A010 50%, #9A7010)"
-                    : "radial-gradient(circle at 40% 35%, #F8FBFD, #B8C8D8 50%, #7888A0)",
-                  border: `1px solid ${metal === "gold" ? "rgba(200,149,10,0.4)" : "rgba(136,153,170,0.4)"}`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
+                <span style={{
+                  fontSize: mobile ? 22 : 36, fontWeight: 900, fontFamily: "Georgia, serif",
+                  color: metal === "gold" ? "rgba(130,90,5,0.75)" : "rgba(85,105,125,0.75)",
+                  userSelect: "none",
                 }}>
-                  <span style={{
-                    fontSize: 36, fontWeight: 900, fontFamily: "Georgia, serif",
-                    color: metal === "gold" ? "rgba(130,90,5,0.75)" : "rgba(85,105,125,0.75)",
-                    userSelect: "none",
-                  }}>
-                    {metal === "gold" ? "Au" : "Ag"}
-                  </span>
-                </div>
+                  {metal === "gold" ? "Au" : "Ag"}
+                </span>
               </div>
             </div>
-          )}
+          </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h1 style={{ fontSize: mobile ? 22 : 26, fontWeight: 700, color: NAVY, marginBottom: 3 }}>
               {coinTypeDisplay} {metal === "gold" ? "Gold" : "Silver"} Coin
             </h1>
             <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>
-              Compare prices from Australian dealers · Updated twice daily · Not financial advice
+              Compare prices from Australian dealers · Updated every 3 hours · Not financial advice
             </p>
             {COIN_INFO[coinTypeDisplay]?.[metal] && (
               <div style={{
@@ -917,7 +915,7 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
                 const p = spotForWeight > 0 ? ((r.buy_price / spotForWeight - 1) * 100) : null;
                 const isLowest = i === 0;
                 return (
-                  <a key={r.dealer} href={DEALER_URLS[r.dealer] || "#"} target="_blank" rel="noreferrer" style={{
+                  <a key={r.dealer} href={r.buy_url || DEALER_URLS[r.dealer] || "#"} target="_blank" rel="noreferrer" style={{
                     display: "grid",
                     gridTemplateColumns: mobile ? "1fr auto auto" : "1fr 80px auto auto",
                     alignItems: "center",
@@ -982,7 +980,7 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
                   <> · Premium: <strong style={{ color: premColor(((lowest/(spot*targetOz))-1)*100) }}>+{(((lowest/(spot*targetOz))-1)*100).toFixed(2)}%</strong></>
                 )}
               </span>
-              <span>Updated twice daily</span>
+              <span>Updated every 3 hours</span>
             </div>
           )}
         </Card>
@@ -1060,45 +1058,43 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
 
         {/* Hero — bar image left, title + specs right */}
         <div style={{
-          display: "flex", gap: 24, marginBottom: 20,
-          flexDirection: mobile ? "column" : "row",
+          display: "flex", gap: mobile ? 14 : 24, marginBottom: 20,
+          flexDirection: "row",
           alignItems: "flex-start",
         }}>
-          {!mobile && (
-            <div style={{ flexShrink: 0, paddingTop: 4 }}>
+          <div style={{ flexShrink: 0, paddingTop: 4 }}>
+            <div style={{
+              width: mobile ? 120 : 196, height: mobile ? 72 : 118, borderRadius: 10,
+              background: metal === "gold"
+                ? "linear-gradient(140deg, #FEF3A7 0%, #E8B90A 35%, #A07008 70%, #C8950A 100%)"
+                : "linear-gradient(140deg, #FFFFFF 0%, #D4DFE8 35%, #96A8B8 70%, #B0C0CE 100%)",
+              boxShadow: metal === "gold"
+                ? "0 6px 24px rgba(180,130,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4)"
+                : "0 6px 24px rgba(100,130,160,0.25), inset 0 2px 4px rgba(255,255,255,0.5)",
+              border: `2px solid ${metal === "gold" ? "#C8950A" : "#8899AA"}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
               <div style={{
-                width: 196, height: 118, borderRadius: 10,
-                background: metal === "gold"
-                  ? "linear-gradient(140deg, #FEF3A7 0%, #E8B90A 35%, #A07008 70%, #C8950A 100%)"
-                  : "linear-gradient(140deg, #FFFFFF 0%, #D4DFE8 35%, #96A8B8 70%, #B0C0CE 100%)",
-                boxShadow: metal === "gold"
-                  ? "0 6px 24px rgba(180,130,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4)"
-                  : "0 6px 24px rgba(100,130,160,0.25), inset 0 2px 4px rgba(255,255,255,0.5)",
-                border: `2px solid ${metal === "gold" ? "#C8950A" : "#8899AA"}`,
+                width: "70%", height: "62%", borderRadius: 5,
+                border: `1px solid ${metal === "gold" ? "rgba(200,149,10,0.5)" : "rgba(136,153,170,0.5)"}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
-                <div style={{
-                  width: "70%", height: "62%", borderRadius: 5,
-                  border: `1px solid ${metal === "gold" ? "rgba(200,149,10,0.5)" : "rgba(136,153,170,0.5)"}`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
+                <span style={{
+                  fontSize: mobile ? 18 : 26, fontWeight: 900, fontFamily: "Georgia, serif",
+                  color: metal === "gold" ? "rgba(130,90,5,0.75)" : "rgba(85,105,125,0.75)",
+                  userSelect: "none",
                 }}>
-                  <span style={{
-                    fontSize: 26, fontWeight: 900, fontFamily: "Georgia, serif",
-                    color: metal === "gold" ? "rgba(130,90,5,0.75)" : "rgba(85,105,125,0.75)",
-                    userSelect: "none",
-                  }}>
-                    {metal === "gold" ? "Au" : "Ag"}
-                  </span>
-                </div>
+                  {metal === "gold" ? "Au" : "Ag"}
+                </span>
               </div>
             </div>
-          )}
+          </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h1 style={{ fontSize: mobile ? 22 : 26, fontWeight: 700, color: NAVY, marginBottom: 3 }}>
               {size} {tabLabel}
             </h1>
             <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>
-              {dealers.length} dealers compared · Prices updated twice daily · Not financial advice
+              {dealers.length} dealers compared · Prices updated every 3 hours · Not financial advice
             </p>
             <div style={{
               background: "#fff", borderRadius: 10,
@@ -1177,7 +1173,7 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
                 const p = spotForSize > 0 ? ((r.buy_price / spotForSize - 1) * 100) : null;
                 const isLowest = i === 0;
                 return (
-                  <a key={r.dealer} href={DEALER_URLS[r.dealer] || "#"} target="_blank" rel="noreferrer" style={{
+                  <a key={`${r.dealer}-${r.bar_brand||''}`} href={r.buy_url || DEALER_URLS[r.dealer] || "#"} target="_blank" rel="noreferrer" style={{
                     display: "grid",
                     gridTemplateColumns: mobile ? "1fr auto auto" : "1fr 80px auto auto",
                     alignItems: "center",
@@ -1199,6 +1195,7 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
                           padding: "1px 6px", borderRadius: 10, verticalAlign: "middle",
                         }}>lowest</span>
                       )}
+                      {r.bar_brand && <div style={{ fontSize: 10, color: "#64748B", marginTop: 1 }}>{r.bar_brand}</div>}
                     </div>
                     {!mobile && (
                       <span style={{ fontSize: 12, fontWeight: 500, textAlign: "right", color: premColor(p) }}>
@@ -1242,7 +1239,7 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
                   <> · Premium: <strong style={{ color: premColor(((lowest/spotForSize)-1)*100) }}>+{(((lowest/spotForSize)-1)*100).toFixed(2)}%</strong></>
                 )}
               </span>
-              <span>Updated twice daily</span>
+              <span>Updated every 3 hours</span>
             </div>
           )}
         </Card>
@@ -2127,7 +2124,7 @@ function HomePage({ rows, goldSpot, silverSpot, updated }) {
 
   useSEO({
     title: "Compare Gold & Silver Prices Australia | GoldSilverPrices.com.au",
-    description: "Compare live gold and silver bullion prices from 8 Australian dealers. Find the cheapest gold coins, silver coins and gold bars. Updated twice daily.",
+    description: "Compare live gold and silver bullion prices from 8 Australian dealers. Find the cheapest gold coins, silver coins and gold bars. Updated every 3 hours.",
   });
 
   return (
@@ -2230,7 +2227,7 @@ function ProductRegistryPage({ metal, category, goldSpot, silverSpot }) {
 
   useSEO({
     title: metalCap + " " + catCap + " — Compare Prices | GoldSilverPrices.com.au",
-    description: "Compare " + metalCap.toLowerCase() + " " + catCap.toLowerCase() + " prices from all major Australian bullion dealers. Updated twice daily.",
+    description: "Compare " + metalCap.toLowerCase() + " " + catCap.toLowerCase() + " prices from all major Australian bullion dealers. Updated every 3 hours.",
   });
 
   useEffect(() => {
@@ -2288,7 +2285,7 @@ function ProductRegistryPage({ metal, category, goldSpot, silverSpot }) {
         </div>
         <div style={{ marginBottom:20 }}>
           <h1 style={{ fontSize:mobile?20:26, fontWeight:700, color:NAVY, margin:"0 0 6px", fontFamily:"'Inter',system-ui,sans-serif" }}>{metalCap} {catCap}</h1>
-          <p style={{ fontSize:13, color:MUTED, margin:0 }}>Best prices from Australian dealers · Updated twice daily · Sorted by lowest premium</p>
+          <p style={{ fontSize:13, color:MUTED, margin:0 }}>Best prices from Australian dealers · Updated every 3 hours · Sorted by lowest premium</p>
         </div>
         {loading ? (
           <div style={{ padding:"20px 14px", textAlign:"center", color:MUTED, fontSize:13 }}>Loading prices…</div>

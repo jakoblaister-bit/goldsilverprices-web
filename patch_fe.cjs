@@ -3,41 +3,8 @@ let c = fs.readFileSync("src/App.jsx", "utf8").replace(/\r\n/g, "\n");
 
 const errors = [];
 
-/* ── 1. ProductPage: replace title + specs with hero (image left, specs right) */
-const OLD1 = `        {/* Title */}
-        <h1 style={{ fontSize: mobile ? 20 : 26, fontWeight: 700, color: NAVY, marginBottom: 4, fontFamily: "'Inter',system-ui,sans-serif" }}>
-          {coinTypeDisplay} {metal === "gold" ? "Gold" : "Silver"} Coin
-        </h1>
-        <p style={{ fontSize: 12, color: MUTED, marginBottom: 16 }}>
-          Compare prices from Australian dealers · Updated twice daily · Not financial advice
-        </p>
-
-        {/* Coin info — NO weight here */}
-        {COIN_INFO[coinTypeDisplay]?.[metal] && (
-          <div style={{
-            background: "#fff", borderRadius: 10,
-            border: \`1px solid \${BORDER}\`,
-            padding: "14px 16px", marginBottom: 16,
-            display: "flex", gap: 20, flexWrap: "wrap",
-          }}>
-            {[
-              { label: "Country",  val: COIN_INFO[coinTypeDisplay][metal].country },
-              { label: "Mint",     val: COIN_INFO[coinTypeDisplay][metal].mint },
-              { label: "Fineness", val: COIN_INFO[coinTypeDisplay][metal].fineness },
-              { label: "Since",    val: COIN_INFO[coinTypeDisplay][metal].since },
-              { label: "Metal",    val: metal === "gold" ? "Gold" : "Silver" },
-            ].map(item => (
-              <div key={item.label}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 2 }}>{item.label}</div>
-                <div style={{ fontSize: 13, fontWeight: 500, color: NAVY }}>{item.val}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Summary cards */}`;
-
-const NEW1 = `        {/* Hero — coin image left, title + specs right */}
+/* ── 1. Coin hero: show image on mobile (smaller), always row layout ── */
+const OLD1 = `        {/* Hero — coin image left, title + specs right */}
         <div style={{
           display: "flex", gap: 24, marginBottom: 20,
           flexDirection: mobile ? "column" : "row",
@@ -75,56 +42,51 @@ const NEW1 = `        {/* Hero — coin image left, title + specs right */}
               </div>
             </div>
           )}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontSize: mobile ? 22 : 26, fontWeight: 700, color: NAVY, marginBottom: 3 }}>
-              {coinTypeDisplay} {metal === "gold" ? "Gold" : "Silver"} Coin
-            </h1>
-            <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>
-              Compare prices from Australian dealers · Updated twice daily · Not financial advice
-            </p>
-            {COIN_INFO[coinTypeDisplay]?.[metal] && (
+          <div style={{ flex: 1, minWidth: 0 }}>`;
+
+const NEW1 = `        {/* Hero — coin image left, title + specs right */}
+        <div style={{
+          display: "flex", gap: mobile ? 14 : 24, marginBottom: 20,
+          flexDirection: "row",
+          alignItems: "flex-start",
+        }}>
+          <div style={{ flexShrink: 0 }}>
+            <div style={{
+              width: mobile ? 90 : 164, height: mobile ? 90 : 164, borderRadius: "50%",
+              background: metal === "gold"
+                ? "radial-gradient(circle at 38% 30%, #FEF3A7, #E8B90A 45%, #A07008 75%, #7A5205)"
+                : "radial-gradient(circle at 38% 30%, #FFFFFF, #D4DFE8 45%, #96A8B8 75%, #6B7F90)",
+              boxShadow: metal === "gold"
+                ? "0 8px 28px rgba(180,130,0,0.35), inset 0 2px 6px rgba(255,255,255,0.5)"
+                : "0 8px 28px rgba(100,130,160,0.3), inset 0 2px 6px rgba(255,255,255,0.6)",
+              border: \`2px solid \${metal === "gold" ? "#C8950A" : "#8899AA"}\`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
               <div style={{
-                background: "#fff", borderRadius: 10,
-                border: \`1px solid \${BORDER}\`,
-                padding: "12px 16px",
-                display: "grid",
-                gridTemplateColumns: mobile ? "1fr 1fr 1fr" : "repeat(5, 1fr)",
-                gap: "10px 0",
+                width: "62%", height: "62%", borderRadius: "50%",
+                background: metal === "gold"
+                  ? "radial-gradient(circle at 40% 35%, #FEF8C0, #D4A010 50%, #9A7010)"
+                  : "radial-gradient(circle at 40% 35%, #F8FBFD, #B8C8D8 50%, #7888A0)",
+                border: \`1px solid \${metal === "gold" ? "rgba(200,149,10,0.4)" : "rgba(136,153,170,0.4)"}\`,
+                display: "flex", alignItems: "center", justifyContent: "center",
               }}>
-                {[
-                  { label: "Country",  val: COIN_INFO[coinTypeDisplay][metal].country },
-                  { label: "Mint",     val: COIN_INFO[coinTypeDisplay][metal].mint },
-                  { label: "Fineness", val: COIN_INFO[coinTypeDisplay][metal].fineness },
-                  { label: "Since",    val: COIN_INFO[coinTypeDisplay][metal].since },
-                  { label: "Metal",    val: metal === "gold" ? "Gold" : "Silver" },
-                ].map(item => (
-                  <div key={item.label}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 3 }}>{item.label}</div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: NAVY }}>{item.val}</div>
-                  </div>
-                ))}
+                <span style={{
+                  fontSize: mobile ? 22 : 36, fontWeight: 900, fontFamily: "Georgia, serif",
+                  color: metal === "gold" ? "rgba(130,90,5,0.75)" : "rgba(85,105,125,0.75)",
+                  userSelect: "none",
+                }}>
+                  {metal === "gold" ? "Au" : "Ag"}
+                </span>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+          <div style={{ flex: 1, minWidth: 0 }}>`;
 
-        {/* Summary cards */}`;
+if (c.includes(OLD1)) { c = c.replace(OLD1, NEW1); console.log("✅ Coin hero mobile image added"); }
+else errors.push("❌ Coin hero anchor not found");
 
-if (c.includes(OLD1)) { c = c.replace(OLD1, NEW1); console.log("✅ ProductPage hero redesign applied"); }
-else errors.push("❌ ProductPage title+specs anchor not found");
-
-/* ── 2. BarProductPage: replace title with hero (bar image left, specs right) */
-const OLD2 = `        {/* Title */}
-        <h1 style={{ fontSize: mobile ? 20 : 26, fontWeight: 700, color: NAVY, marginBottom: 4, fontFamily: "'Inter',system-ui,sans-serif" }}>
-          {size} {tabLabel}
-        </h1>
-        <p style={{ fontSize: 12, color: MUTED, marginBottom: 20 }}>
-          {dealers.length} dealers compared · Prices updated twice daily · Not financial advice
-        </p>
-
-        {/* Summary cards */}`;
-
-const NEW2 = `        {/* Hero — bar image left, title + specs right */}
+/* ── 2. Bar hero: show image on mobile (smaller), always row layout ── */
+const OLD2 = `        {/* Hero — bar image left, title + specs right */}
         <div style={{
           display: "flex", gap: 24, marginBottom: 20,
           flexDirection: mobile ? "column" : "row",
@@ -159,40 +121,163 @@ const NEW2 = `        {/* Hero — bar image left, title + specs right */}
               </div>
             </div>
           )}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontSize: mobile ? 22 : 26, fontWeight: 700, color: NAVY, marginBottom: 3 }}>
-              {size} {tabLabel}
-            </h1>
-            <p style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>
-              {dealers.length} dealers compared · Prices updated twice daily · Not financial advice
-            </p>
+          <div style={{ flex: 1, minWidth: 0 }}>`;
+
+const NEW2 = `        {/* Hero — bar image left, title + specs right */}
+        <div style={{
+          display: "flex", gap: mobile ? 14 : 24, marginBottom: 20,
+          flexDirection: "row",
+          alignItems: "flex-start",
+        }}>
+          <div style={{ flexShrink: 0, paddingTop: 4 }}>
             <div style={{
-              background: "#fff", borderRadius: 10,
-              border: \`1px solid \${BORDER}\`,
-              padding: "12px 16px",
-              display: "grid",
-              gridTemplateColumns: mobile ? "1fr 1fr" : "repeat(4, 1fr)",
-              gap: "10px 0",
+              width: mobile ? 120 : 196, height: mobile ? 72 : 118, borderRadius: 10,
+              background: metal === "gold"
+                ? "linear-gradient(140deg, #FEF3A7 0%, #E8B90A 35%, #A07008 70%, #C8950A 100%)"
+                : "linear-gradient(140deg, #FFFFFF 0%, #D4DFE8 35%, #96A8B8 70%, #B0C0CE 100%)",
+              boxShadow: metal === "gold"
+                ? "0 6px 24px rgba(180,130,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4)"
+                : "0 6px 24px rgba(100,130,160,0.25), inset 0 2px 4px rgba(255,255,255,0.5)",
+              border: \`2px solid \${metal === "gold" ? "#C8950A" : "#8899AA"}\`,
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              {[
-                { label: "Type",     val: barTypeLabel },
-                { label: "Metal",    val: metal === "gold" ? "Gold" : "Silver" },
-                { label: "Fineness", val: metal === "gold" ? "99.99%" : "99.9%" },
-                { label: "Size",     val: size },
-              ].map(item => (
-                <div key={item.label}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 3 }}>{item.label}</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: NAVY }}>{item.val}</div>
-                </div>
-              ))}
+              <div style={{
+                width: "70%", height: "62%", borderRadius: 5,
+                border: \`1px solid \${metal === "gold" ? "rgba(200,149,10,0.5)" : "rgba(136,153,170,0.5)"}\`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <span style={{
+                  fontSize: mobile ? 18 : 26, fontWeight: 900, fontFamily: "Georgia, serif",
+                  color: metal === "gold" ? "rgba(130,90,5,0.75)" : "rgba(85,105,125,0.75)",
+                  userSelect: "none",
+                }}>
+                  {metal === "gold" ? "Au" : "Ag"}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+          <div style={{ flex: 1, minWidth: 0 }}>`;
 
-        {/* Summary cards */}`;
+if (c.includes(OLD2)) { c = c.replace(OLD2, NEW2); console.log("✅ Bar hero mobile image added"); }
+else errors.push("❌ Bar hero anchor not found");
 
-if (c.includes(OLD2)) { c = c.replace(OLD2, NEW2); console.log("✅ BarProductPage hero redesign applied"); }
-else errors.push("❌ BarProductPage title anchor not found");
+/* ── 3. Coin table: use buy_url for exact product link ── */
+const OLD3 = `                  <a key={r.dealer} href={DEALER_URLS[r.dealer] || "#"} target="_blank" rel="noreferrer" style={{
+                    display: "grid",
+                    gridTemplateColumns: mobile ? "1fr auto auto" : "1fr 80px auto auto",
+                    alignItems: "center",
+                    minHeight: mobile ? 54 : 48,
+                    padding: "0 14px", gap: 12,
+                    background: isLowest ? "#F0FDF4" : i % 2 === 0 ? "#fff" : "#FAFBFC",
+                    borderBottom: \`1px solid \${BORDER}\`,
+                    borderLeft: isLowest ? \`3px solid \${GREEN}\` : "3px solid transparent",
+                    textDecoration: "none",
+                  }}>
+                    <div>
+                      <span style={{ fontSize: 13, color: "#1E293B", fontWeight: isLowest ? 600 : 400 }}>
+                        {r.dealer}
+                      </span>
+                      {isLowest && (
+                        <span style={{
+                          marginLeft: 7, fontSize: 9, fontWeight: 600,
+                          background: "#DCFCE7", color: "#166534",
+                          padding: "1px 6px", borderRadius: 10, verticalAlign: "middle",
+                        }}>lowest</span>
+                      )}
+                    </div>`;
+
+const NEW3 = `                  <a key={r.dealer} href={r.buy_url || DEALER_URLS[r.dealer] || "#"} target="_blank" rel="noreferrer" style={{
+                    display: "grid",
+                    gridTemplateColumns: mobile ? "1fr auto auto" : "1fr 80px auto auto",
+                    alignItems: "center",
+                    minHeight: mobile ? 54 : 48,
+                    padding: "0 14px", gap: 12,
+                    background: isLowest ? "#F0FDF4" : i % 2 === 0 ? "#fff" : "#FAFBFC",
+                    borderBottom: \`1px solid \${BORDER}\`,
+                    borderLeft: isLowest ? \`3px solid \${GREEN}\` : "3px solid transparent",
+                    textDecoration: "none",
+                  }}>
+                    <div>
+                      <span style={{ fontSize: 13, color: "#1E293B", fontWeight: isLowest ? 600 : 400 }}>
+                        {r.dealer}
+                      </span>
+                      {isLowest && (
+                        <span style={{
+                          marginLeft: 7, fontSize: 9, fontWeight: 600,
+                          background: "#DCFCE7", color: "#166534",
+                          padding: "1px 6px", borderRadius: 10, verticalAlign: "middle",
+                        }}>lowest</span>
+                      )}
+                    </div>`;
+
+if (c.includes(OLD3)) { c = c.replace(OLD3, NEW3); console.log("✅ Coin table buy_url applied"); }
+else errors.push("❌ Coin table anchor not found");
+
+/* ── 4. Bar table: buy_url + bar_brand label + unique key ── */
+const OLD4 = `            : dealers.map((r, i) => {
+                const p = spotForSize > 0 ? ((r.buy_price / spotForSize - 1) * 100) : null;
+                const isLowest = i === 0;
+                return (
+                  <a key={r.dealer} href={DEALER_URLS[r.dealer] || "#"} target="_blank" rel="noreferrer" style={{
+                    display: "grid",
+                    gridTemplateColumns: mobile ? "1fr auto auto" : "1fr 80px auto auto",
+                    alignItems: "center",
+                    minHeight: mobile ? 54 : 48,
+                    padding: "0 14px", gap: 12,
+                    background: isLowest ? "#F0FDF4" : i % 2 === 0 ? "#fff" : "#FAFBFC",
+                    borderBottom: \`1px solid \${BORDER}\`,
+                    borderLeft: isLowest ? \`3px solid \${GREEN}\` : "3px solid transparent",
+                    textDecoration: "none",
+                  }}>
+                    <div>
+                      <span style={{ fontSize: 13, color: "#1E293B", fontWeight: isLowest ? 600 : 400 }}>
+                        {r.dealer}
+                      </span>
+                      {isLowest && (
+                        <span style={{
+                          marginLeft: 7, fontSize: 9, fontWeight: 600,
+                          background: "#DCFCE7", color: "#166534",
+                          padding: "1px 6px", borderRadius: 10, verticalAlign: "middle",
+                        }}>lowest</span>
+                      )}
+                    </div>`;
+
+const NEW4 = `            : dealers.map((r, i) => {
+                const p = spotForSize > 0 ? ((r.buy_price / spotForSize - 1) * 100) : null;
+                const isLowest = i === 0;
+                return (
+                  <a key={\`\${r.dealer}-\${r.bar_brand||''}\`} href={r.buy_url || DEALER_URLS[r.dealer] || "#"} target="_blank" rel="noreferrer" style={{
+                    display: "grid",
+                    gridTemplateColumns: mobile ? "1fr auto auto" : "1fr 80px auto auto",
+                    alignItems: "center",
+                    minHeight: mobile ? 54 : 48,
+                    padding: "0 14px", gap: 12,
+                    background: isLowest ? "#F0FDF4" : i % 2 === 0 ? "#fff" : "#FAFBFC",
+                    borderBottom: \`1px solid \${BORDER}\`,
+                    borderLeft: isLowest ? \`3px solid \${GREEN}\` : "3px solid transparent",
+                    textDecoration: "none",
+                  }}>
+                    <div>
+                      <span style={{ fontSize: 13, color: "#1E293B", fontWeight: isLowest ? 600 : 400 }}>
+                        {r.dealer}
+                      </span>
+                      {isLowest && (
+                        <span style={{
+                          marginLeft: 7, fontSize: 9, fontWeight: 600,
+                          background: "#DCFCE7", color: "#166534",
+                          padding: "1px 6px", borderRadius: 10, verticalAlign: "middle",
+                        }}>lowest</span>
+                      )}
+                      {r.bar_brand && <div style={{ fontSize: 10, color: "#64748B", marginTop: 1 }}>{r.bar_brand}</div>}
+                    </div>`;
+
+if (c.includes(OLD4)) { c = c.replace(OLD4, NEW4); console.log("✅ Bar table buy_url + brand label + key fix applied"); }
+else errors.push("❌ Bar table anchor not found");
+
+/* ── 5. "Updated twice daily" → "Updated every 3 hours" ── */
+c = c.replace(/Updated twice daily/g, "Updated every 3 hours");
+c = c.replace(/Prices updated twice daily/g, "Prices updated every 3 hours");
+console.log("✅ Update frequency text corrected");
 
 if (errors.length) { errors.forEach(e => console.log(e)); process.exit(1); }
 fs.writeFileSync("src/App.jsx", c, "utf8");
