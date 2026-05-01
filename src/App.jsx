@@ -456,10 +456,10 @@ function BarRow({ sizeLabel, cheapest, brand, i, onClick, goldSpot, silverSpot, 
 
 /* ── Bars section (homepage) ─────────────────────────────────────────────── */
 function BarsSection({ rows, goldSpot, silverSpot }) {
-  const [tab, setTab] = useState("Gold Cast");
+  const [tab, setTab] = useState("Gold Minted");
   const navigate      = useNavigate();
 
-  const TABS = ["Gold Cast", "Gold Minted", "Silver Cast", "Silver Minted"];
+  const TABS = ["Gold Minted", "Silver Minted", "Gold Cast", "Silver Cast"];
   const metal   = tab.startsWith("Gold") ? "gold" : "silver";
   const barType = tab.endsWith("Cast") ? "cast" : "minted";
 
@@ -467,13 +467,14 @@ function BarsSection({ rows, goldSpot, silverSpot }) {
     r.category === "bar" &&
     r.metal === metal &&
     r.bar_type === barType &&
-    r.buy_price > 0
+    r.buy_price > 0 &&
+    !(r.weight_g && r.weight_g < 31.1035)
   );
 
   // Group by size — one row per size, cheapest dealer
   const grouped = {};
   for (const r of filtered) {
-    const size  = r.weight_oz ? `${r.weight_oz}oz` : `${r.weight_g}g`;
+    const size  = r.weight_g && r.weight_g < 31.1035 ? `${r.weight_g}g` : `${r.weight_oz}oz`;
     const oz    = r.weight_oz || (r.weight_g / 31.1);
     const key   = size;
     if (!grouped[key]) grouped[key] = { size, oz, cheapest: r, count: 0 };
@@ -562,7 +563,7 @@ function TrustStrip() {
     }}>
       {[
         { icon: "🔍", title: "Independent",   sub: "Not affiliated with any dealer" },
-        { icon: "⏱",  title: "Twice Daily",   sub: "7am & 3pm Sydney time" },
+        { icon: "⏱",  title: "Every 3 Hours", sub: "8 updates/day Sydney time" },
         { icon: "🛡",  title: "8 Dealers",     sub: "All major AU bullion dealers" },
         { icon: "📊",  title: "Premium Shown", sub: "True cost above spot price" },
       ].map(t => (
@@ -682,6 +683,17 @@ const COIN_INFO = {
   "Generic":        { gold:{ country:"Various",   mint:"Various",            fineness:"99.99%", since:"—"    }, silver:{ country:"Various",   mint:"Various",            fineness:"99.9%",  since:"—"    } },
 };
 
+const COIN_IMAGES = {
+  "Krugerrand":   { gold: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/1_oz_Krugerrand_2017_Wertseite.png/300px-1_oz_Krugerrand_2017_Wertseite.png" },
+  "Philharmonic": {
+    gold:   "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/1_oz_Vienna_Philharmonic_2017_averse.png/300px-1_oz_Vienna_Philharmonic_2017_averse.png",
+    silver: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/1_oz_Vienna_Philharmonic_2017_averse.png/300px-1_oz_Vienna_Philharmonic_2017_averse.png",
+  },
+};
+const BAR_IMG = {
+  gold: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Gold_Ingot_on_white_background.jpg/300px-Gold_Ingot_on_white_background.jpg",
+};
+
 const DEALER_URLS = {
   "Perth Mint":            "https://www.perthmint.com",
   "ABC Bullion":           "https://www.abcbullion.com.au",
@@ -768,9 +780,11 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
           <div style={{ flexShrink: 0 }}>
             <div style={{
               width: mobile ? 90 : 164, height: mobile ? 90 : 164, borderRadius: "50%",
-              background: metal === "gold"
-                ? "radial-gradient(circle at 38% 30%, #FEF3A7, #E8B90A 45%, #A07008 75%, #7A5205)"
-                : "radial-gradient(circle at 38% 30%, #FFFFFF, #D4DFE8 45%, #96A8B8 75%, #6B7F90)",
+              background: COIN_IMAGES[coinTypeDisplay]?.[metal]
+                ? `url("${COIN_IMAGES[coinTypeDisplay][metal]}") center/contain no-repeat, ${metal === "gold" ? "radial-gradient(circle at 38% 30%, #FEF3A7, #E8B90A 45%, #A07008 75%, #7A5205)" : "radial-gradient(circle at 38% 30%, #FFFFFF, #D4DFE8 45%, #96A8B8 75%, #6B7F90)"}`
+                : metal === "gold"
+                  ? "radial-gradient(circle at 38% 30%, #FEF3A7, #E8B90A 45%, #A07008 75%, #7A5205)"
+                  : "radial-gradient(circle at 38% 30%, #FFFFFF, #D4DFE8 45%, #96A8B8 75%, #6B7F90)",
               boxShadow: metal === "gold"
                 ? "0 8px 28px rgba(180,130,0,0.35), inset 0 2px 6px rgba(255,255,255,0.5)"
                 : "0 8px 28px rgba(100,130,160,0.3), inset 0 2px 6px rgba(255,255,255,0.6)",
@@ -1065,9 +1079,11 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
           <div style={{ flexShrink: 0, paddingTop: 4 }}>
             <div style={{
               width: mobile ? 120 : 196, height: mobile ? 72 : 118, borderRadius: 10,
-              background: metal === "gold"
-                ? "linear-gradient(140deg, #FEF3A7 0%, #E8B90A 35%, #A07008 70%, #C8950A 100%)"
-                : "linear-gradient(140deg, #FFFFFF 0%, #D4DFE8 35%, #96A8B8 70%, #B0C0CE 100%)",
+              background: BAR_IMG[metal]
+                ? `url("${BAR_IMG[metal]}") center/contain no-repeat #fff`
+                : metal === "gold"
+                  ? "linear-gradient(140deg, #FEF3A7 0%, #E8B90A 35%, #A07008 70%, #C8950A 100%)"
+                  : "linear-gradient(140deg, #FFFFFF 0%, #D4DFE8 35%, #96A8B8 70%, #B0C0CE 100%)",
               boxShadow: metal === "gold"
                 ? "0 6px 24px rgba(180,130,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4)"
                 : "0 6px 24px rgba(100,130,160,0.25), inset 0 2px 4px rgba(255,255,255,0.5)",
@@ -2248,7 +2264,8 @@ function ProductRegistryPage({ metal, category, goldSpot, silverSpot }) {
             link  = "/" + metal + "/coin/" + r.coin_type.toLowerCase().replace(/s+/g, "-");
             wOz   = 1;
           } else {
-            var wLabel = r.weight_oz ? r.weight_oz + "oz" : r.weight_g + "g";
+            if (r.weight_g && r.weight_g < 31.1035) return;
+            var wLabel = r.weight_oz + "oz";
             key   = (r.bar_brand || "") + "|" + (r.bar_type || "") + "|" + wLabel;
             var ts = r.bar_type ? r.bar_type.charAt(0).toUpperCase() + r.bar_type.slice(1) : "";
             label = [r.bar_brand || "", ts, wLabel].filter(Boolean).join(" ");
