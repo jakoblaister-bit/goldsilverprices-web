@@ -707,9 +707,13 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
   const navigate = useNavigate();
   const mobile   = useIsMobile();
 
-  const [coinImages, setCoinImages] = useState(COIN_IMAGES);
+  const [coinImages, setCoinImages] = useState({});
+  const [coinImagesReady, setCoinImagesReady] = useState(false);
   useEffect(() => {
-    fetchCoinImages().then(data => { if (data) setCoinImages(prev => ({ ...prev, ...data })); }).catch(() => {});
+    fetchCoinImages()
+      .then(data => { if (data) setCoinImages(data); })
+      .catch(() => {})
+      .finally(() => setCoinImagesReady(true));
   }, []);
 
   const coinTypeDisplay = rows.find(r => slugify(r.coin_type || "") === coinType)?.coin_type || coinType;
@@ -777,42 +781,44 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
           alignItems: "flex-start",
         }}>
           <div style={{ flexShrink: 0 }}>
-            <div style={{
-              width: mobile ? 90 : 164, height: mobile ? 90 : 164, borderRadius: "50%",
-              background: metal === "gold"
-                ? "radial-gradient(circle at 38% 30%, #FEF3A7, #E8B90A 45%, #A07008 75%, #7A5205)"
-                : "radial-gradient(circle at 38% 30%, #FFFFFF, #D4DFE8 45%, #96A8B8 75%, #6B7F90)",
-              boxShadow: metal === "gold"
-                ? "0 8px 28px rgba(180,130,0,0.35), inset 0 2px 6px rgba(255,255,255,0.5)"
-                : "0 8px 28px rgba(100,130,160,0.3), inset 0 2px 6px rgba(255,255,255,0.6)",
-              border: `2px solid ${metal === "gold" ? "#C8950A" : "#8899AA"}`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              {coinImages[coinTypeDisplay]?.[metal] ? (
+            {coinImagesReady && (
+              coinImages[coinTypeDisplay]?.[metal] ? (
                 <img
                   src={coinImages[coinTypeDisplay][metal]}
                   alt={coinTypeDisplay}
-                  style={{ width: "92%", height: "92%", objectFit: "contain", borderRadius: "50%" }}
+                  style={{ width: mobile ? 90 : 164, height: mobile ? 90 : 164, objectFit: "contain", borderRadius: "50%", display: "block" }}
                 />
               ) : (
                 <div style={{
-                  width: "62%", height: "62%", borderRadius: "50%",
+                  width: mobile ? 90 : 164, height: mobile ? 90 : 164, borderRadius: "50%",
                   background: metal === "gold"
-                    ? "radial-gradient(circle at 40% 35%, #FEF8C0, #D4A010 50%, #9A7010)"
-                    : "radial-gradient(circle at 40% 35%, #F8FBFD, #B8C8D8 50%, #7888A0)",
-                  border: `1px solid ${metal === "gold" ? "rgba(200,149,10,0.4)" : "rgba(136,153,170,0.4)"}`,
+                    ? "radial-gradient(circle at 38% 30%, #FEF3A7, #E8B90A 45%, #A07008 75%, #7A5205)"
+                    : "radial-gradient(circle at 38% 30%, #FFFFFF, #D4DFE8 45%, #96A8B8 75%, #6B7F90)",
+                  boxShadow: metal === "gold"
+                    ? "0 8px 28px rgba(180,130,0,0.35), inset 0 2px 6px rgba(255,255,255,0.5)"
+                    : "0 8px 28px rgba(100,130,160,0.3), inset 0 2px 6px rgba(255,255,255,0.6)",
+                  border: `2px solid ${metal === "gold" ? "#C8950A" : "#8899AA"}`,
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <span style={{
-                    fontSize: mobile ? 22 : 36, fontWeight: 900, fontFamily: "Georgia, serif",
-                    color: metal === "gold" ? "rgba(130,90,5,0.75)" : "rgba(85,105,125,0.75)",
-                    userSelect: "none",
+                  <div style={{
+                    width: "62%", height: "62%", borderRadius: "50%",
+                    background: metal === "gold"
+                      ? "radial-gradient(circle at 40% 35%, #FEF8C0, #D4A010 50%, #9A7010)"
+                      : "radial-gradient(circle at 40% 35%, #F8FBFD, #B8C8D8 50%, #7888A0)",
+                    border: `1px solid ${metal === "gold" ? "rgba(200,149,10,0.4)" : "rgba(136,153,170,0.4)"}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    {metal === "gold" ? "Au" : "Ag"}
-                  </span>
+                    <span style={{
+                      fontSize: mobile ? 22 : 36, fontWeight: 900, fontFamily: "Georgia, serif",
+                      color: metal === "gold" ? "rgba(130,90,5,0.75)" : "rgba(85,105,125,0.75)",
+                      userSelect: "none",
+                    }}>
+                      {metal === "gold" ? "Au" : "Ag"}
+                    </span>
+                  </div>
                 </div>
-              )}
-            </div>
+              )
+            )}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h1 style={{ fontSize: mobile ? 22 : 26, fontWeight: 700, color: NAVY, marginBottom: 3 }}>
@@ -1031,9 +1037,13 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
   const navigate = useNavigate();
   const mobile   = useIsMobile();
 
-  const [barImages, setBarImages] = useState(BAR_IMG);
+  const [barImages, setBarImages] = useState({});
+  const [barImagesReady, setBarImagesReady] = useState(false);
   useEffect(() => {
-    fetchBarImages().then(data => { if (data) setBarImages(prev => ({ ...prev, ...data })); }).catch(() => {});
+    fetchBarImages()
+      .then(data => { if (data) setBarImages(data); })
+      .catch(() => {})
+      .finally(() => setBarImagesReady(true));
   }, []);
 
   const spot    = metal === "gold" ? goldSpot : silverSpot;
@@ -1090,39 +1100,41 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
           alignItems: "flex-start",
         }}>
           <div style={{ flexShrink: 0, paddingTop: 4 }}>
-            <div style={{
-              width: mobile ? 120 : 196, height: mobile ? 72 : 118, borderRadius: 10,
-              background: metal === "gold"
-                ? "linear-gradient(140deg, #FEF3A7 0%, #E8B90A 35%, #A07008 70%, #C8950A 100%)"
-                : "linear-gradient(140deg, #FFFFFF 0%, #D4DFE8 35%, #96A8B8 70%, #B0C0CE 100%)",
-              boxShadow: metal === "gold"
-                ? "0 6px 24px rgba(180,130,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4)"
-                : "0 6px 24px rgba(100,130,160,0.25), inset 0 2px 4px rgba(255,255,255,0.5)",
-              border: `2px solid ${metal === "gold" ? "#C8950A" : "#8899AA"}`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              {barImages[metal] ? (
+            {barImagesReady && (
+              barImages[metal] ? (
                 <img
                   src={barImages[metal]}
                   alt={metal + " bar"}
-                  style={{ width: "90%", height: "86%", objectFit: "contain" }}
+                  style={{ width: mobile ? 120 : 196, height: mobile ? 72 : 118, objectFit: "contain", display: "block", borderRadius: 10 }}
                 />
               ) : (
                 <div style={{
-                  width: "70%", height: "62%", borderRadius: 5,
-                  border: `1px solid ${metal === "gold" ? "rgba(200,149,10,0.5)" : "rgba(136,153,170,0.5)"}`,
+                  width: mobile ? 120 : 196, height: mobile ? 72 : 118, borderRadius: 10,
+                  background: metal === "gold"
+                    ? "linear-gradient(140deg, #FEF3A7 0%, #E8B90A 35%, #A07008 70%, #C8950A 100%)"
+                    : "linear-gradient(140deg, #FFFFFF 0%, #D4DFE8 35%, #96A8B8 70%, #B0C0CE 100%)",
+                  boxShadow: metal === "gold"
+                    ? "0 6px 24px rgba(180,130,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4)"
+                    : "0 6px 24px rgba(100,130,160,0.25), inset 0 2px 4px rgba(255,255,255,0.5)",
+                  border: `2px solid ${metal === "gold" ? "#C8950A" : "#8899AA"}`,
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <span style={{
-                    fontSize: mobile ? 18 : 26, fontWeight: 900, fontFamily: "Georgia, serif",
-                    color: metal === "gold" ? "rgba(130,90,5,0.75)" : "rgba(85,105,125,0.75)",
-                    userSelect: "none",
+                  <div style={{
+                    width: "70%", height: "62%", borderRadius: 5,
+                    border: `1px solid ${metal === "gold" ? "rgba(200,149,10,0.5)" : "rgba(136,153,170,0.5)"}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    {metal === "gold" ? "Au" : "Ag"}
-                  </span>
+                    <span style={{
+                      fontSize: mobile ? 18 : 26, fontWeight: 900, fontFamily: "Georgia, serif",
+                      color: metal === "gold" ? "rgba(130,90,5,0.75)" : "rgba(85,105,125,0.75)",
+                      userSelect: "none",
+                    }}>
+                      {metal === "gold" ? "Au" : "Ag"}
+                    </span>
+                  </div>
                 </div>
-              )}
-            </div>
+              )
+            )}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h1 style={{ fontSize: mobile ? 22 : 26, fontWeight: 700, color: NAVY, marginBottom: 3 }}>
