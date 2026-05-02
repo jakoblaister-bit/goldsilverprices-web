@@ -1,14 +1,18 @@
 import { createClient } from '@sanity/client'
 
-const client = createClient({
-  projectId: import.meta.env.VITE_SANITY_PROJECT_ID || '',
-  dataset: import.meta.env.VITE_SANITY_DATASET || 'production',
-  useCdn: true,
-  apiVersion: '2024-01-01',
-})
+const PROJECT_ID = import.meta.env.VITE_SANITY_PROJECT_ID
+
+const client = PROJECT_ID
+  ? createClient({
+      projectId: PROJECT_ID,
+      dataset: import.meta.env.VITE_SANITY_DATASET || 'production',
+      useCdn: true,
+      apiVersion: '2024-01-01',
+    })
+  : null
 
 export async function fetchArticlesMeta() {
-  if (!import.meta.env.VITE_SANITY_PROJECT_ID) return null
+  if (!client) return null
   return client.fetch(`
     *[_type == "post"] | order(publishedAt desc) {
       "slug": slug.current,
@@ -23,7 +27,7 @@ export async function fetchArticlesMeta() {
 }
 
 export async function fetchCoinImages() {
-  if (!import.meta.env.VITE_SANITY_PROJECT_ID) return null
+  if (!client) return null
   const rows = await client.fetch(`
     *[_type == "coinImage"] {
       coinType,
@@ -31,7 +35,6 @@ export async function fetchCoinImages() {
       "url": image.asset->url + "?w=400&auto=format"
     }
   `)
-  // Build lookup { coinType: { metal: url } }
   const lookup = {}
   for (const r of rows) {
     if (!lookup[r.coinType]) lookup[r.coinType] = {}
@@ -41,21 +44,20 @@ export async function fetchCoinImages() {
 }
 
 export async function fetchBarImages() {
-  if (!import.meta.env.VITE_SANITY_PROJECT_ID) return null
+  if (!client) return null
   const rows = await client.fetch(`
     *[_type == "barImage"] {
       metal,
       "url": image.asset->url + "?w=600&auto=format"
     }
   `)
-  // Build lookup { metal: url }
   const lookup = {}
   for (const r of rows) lookup[r.metal] = r.url
   return lookup
 }
 
 export async function fetchArticleBySlug(slug) {
-  if (!import.meta.env.VITE_SANITY_PROJECT_ID) return null
+  if (!client) return null
   const raw = await client.fetch(`
     *[_type == "post" && slug.current == $slug][0] {
       "slug": slug.current,
