@@ -2097,12 +2097,20 @@ function MagazineCarousel() {
   const [active, setActive] = useState(0);
   const navigate = useNavigate();
 
-  const slides = [
+  const staticSlides = [
     { img: "https://images.pexels.com/photos/47344/gold-bar-gold-bar-gold-47344.jpeg?w=800", headline: "How to Buy Gold in Australia: A Complete 2026 Guide", sub: "Read guide →", slug: "how-to-buy-gold-australia", tag: "Guide" },
     { img: "https://images.pexels.com/photos/128867/coins-currency-investment-insurance-128867.jpeg?w=800", headline: "Why Gold Coin Prices Vary Between Dealers", sub: "Read article →", slug: "why-gold-coin-prices-vary", tag: "Education" },
     { img: "https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg?w=800", headline: "Is Silver a Good Investment in Australia in 2026?", sub: "Read analysis →", slug: "is-silver-good-investment-australia-2026", tag: "Analysis" },
     { img: "https://images.pexels.com/photos/844124/pexels-photo-844124.jpeg?w=800", headline: "Best Online Gold Dealers in Australia — Compared", sub: "Read comparison →", slug: "best-online-gold-dealers-australia", tag: "Comparison" },
   ];
+  const [slides, setSlides] = useState(staticSlides);
+  useEffect(() => {
+    fetchArticlesMeta().then(data => {
+      if (data && data.length > 0) {
+        setSlides(data.map(a => ({ img: a.img, headline: a.title, sub: "Read article →", slug: a.slug, tag: a.tag })));
+      }
+    }).catch(() => {});
+  }, []);
 
   const perPage = mobile ? 1 : 2;
   const total   = Math.ceil(slides.length / perPage);
