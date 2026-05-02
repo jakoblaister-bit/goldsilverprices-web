@@ -685,16 +685,8 @@ const COIN_INFO = {
   "Generic":        { gold:{ country:"Various",   mint:"Various",            fineness:"99.99%", since:"—"    }, silver:{ country:"Various",   mint:"Various",            fineness:"99.9%",  since:"—"    } },
 };
 
-const COIN_IMAGES = {
-  "Krugerrand":   { gold: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/1_oz_Krugerrand_2017_Wertseite.png/300px-1_oz_Krugerrand_2017_Wertseite.png" },
-  "Philharmonic": {
-    gold:   "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/1_oz_Vienna_Philharmonic_2017_averse.png/300px-1_oz_Vienna_Philharmonic_2017_averse.png",
-    silver: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/1_oz_Vienna_Philharmonic_2017_averse.png/300px-1_oz_Vienna_Philharmonic_2017_averse.png",
-  },
-};
-const BAR_IMG = {
-  gold: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Gold_Ingot_on_white_background.jpg/300px-Gold_Ingot_on_white_background.jpg",
-};
+const COIN_IMAGES = {};
+const BAR_IMG = {};
 
 const DEALER_URLS = {
   "Perth Mint":            "https://www.perthmint.com",
