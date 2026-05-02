@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { fetchArticlesMeta, fetchArticleBySlug, fetchCoinImages, fetchBarImages } from "./sanityClient";
 import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation } from "react-router-dom";
 
 const supabase = createClient(
@@ -714,6 +715,11 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
   const navigate = useNavigate();
   const mobile   = useIsMobile();
 
+  const [coinImages, setCoinImages] = useState(COIN_IMAGES);
+  useEffect(() => {
+    fetchCoinImages().then(data => { if (data) setCoinImages(prev => ({ ...prev, ...data })); }).catch(() => {});
+  }, []);
+
   const coinTypeDisplay = rows.find(r => slugify(r.coin_type || "") === coinType)?.coin_type || coinType;
   const spot = metal === "gold" ? goldSpot : silverSpot;
   const weights = metal === "gold" ? GOLD_WEIGHTS : SILVER_WEIGHTS;
@@ -790,9 +796,9 @@ function ProductPage({ rows, goldSpot, silverSpot, updated }) {
               border: `2px solid ${metal === "gold" ? "#C8950A" : "#8899AA"}`,
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              {COIN_IMAGES[coinTypeDisplay]?.[metal] ? (
+              {coinImages[coinTypeDisplay]?.[metal] ? (
                 <img
-                  src={COIN_IMAGES[coinTypeDisplay][metal]}
+                  src={coinImages[coinTypeDisplay][metal]}
                   alt={coinTypeDisplay}
                   style={{ width: "92%", height: "92%", objectFit: "contain", borderRadius: "50%" }}
                 />
@@ -1033,6 +1039,10 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
   const navigate = useNavigate();
   const mobile   = useIsMobile();
 
+  const [barImages, setBarImages] = useState(BAR_IMG);
+  useEffect(() => {
+    fetchBarImages().then(data => { if (data) setBarImages(prev => ({ ...prev, ...data })); }).catch(() => {});
+  }, []);
 
   const spot    = metal === "gold" ? goldSpot : silverSpot;
 
@@ -1099,9 +1109,9 @@ function BarProductPage({ rows, goldSpot, silverSpot, updated }) {
               border: `2px solid ${metal === "gold" ? "#C8950A" : "#8899AA"}`,
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              {BAR_IMG[metal] ? (
+              {barImages[metal] ? (
                 <img
-                  src={BAR_IMG[metal]}
+                  src={barImages[metal]}
                   alt={metal + " bar"}
                   style={{ width: "90%", height: "86%", objectFit: "contain" }}
                 />
@@ -1615,6 +1625,41 @@ function SellCategoryPage({ goldSpot, silverSpot, updated }) {
 /* ══════════════════════════════════════════════════════════════════════════ */
 /* MAGAZINE PAGE                                                              */
 /* ══════════════════════════════════════════════════════════════════════════ */
+const STATIC_ARTICLES_META = [
+  {
+    slug: "how-to-buy-gold-australia",
+    tag: "Guide",
+    title: "How to Buy Gold in Australia: A Complete 2026 Guide",
+    excerpt: "Everything you need to know — spot price, premiums, which dealer to choose, storage options and the most common mistakes first-time buyers make.",
+    readMin: 8,
+    img: "https://images.pexels.com/photos/47344/gold-bar-gold-bar-gold-47344.jpeg?w=800",
+  },
+  {
+    slug: "why-gold-coin-prices-vary",
+    tag: "Education",
+    title: "Why Gold Coin Prices Vary Between Dealers — The Premium Explained",
+    excerpt: "The price difference between dealers isn't random. Understanding premiums, cast vs minted, and why a Kangaroo is cheaper than a Britannia saves you real money.",
+    readMin: 5,
+    img: "https://images.pexels.com/photos/128867/coins-currency-investment-insurance-128867.jpeg?w=800",
+  },
+  {
+    slug: "is-silver-good-investment-australia-2026",
+    tag: "Analysis",
+    title: "Is Silver a Good Investment in Australia in 2026?",
+    excerpt: "The gold/silver ratio, GST implications on silver, cast bars vs coins, and how to store it cheaply. What Australian investors need to know.",
+    readMin: 6,
+    img: "https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg?w=800",
+  },
+  {
+    slug: "best-online-gold-dealers-australia",
+    tag: "Comparison",
+    title: "Best Online Gold Dealers in Australia — Compared",
+    excerpt: "Ainslie, ABC Bullion, Perth Mint, KJC, Jaggards, Swan and more — location, speciality, best products and what each dealer does better than the rest.",
+    readMin: 7,
+    img: "https://images.pexels.com/photos/844124/pexels-photo-844124.jpeg?w=800",
+  },
+];
+
 function MagazinePage({ goldSpot, silverSpot, updated }) {
   const mobile = useIsMobile();
   const navigate = useNavigate();
@@ -1622,64 +1667,18 @@ function MagazinePage({ goldSpot, silverSpot, updated }) {
     title: "Gold & Silver Magazine Australia | GoldSilverPrices.com.au",
     description: "Gold and silver market news and investment guides for Australian investors.",
   });
-  const articles = [
-  {
-    "slug": "how-to-buy-gold-australia",
-    "tag": "Guide",
-    "title": "How to Buy Gold in Australia: A Complete 2026 Guide",
-    "excerpt": "Everything you need to know — spot price, premiums, which dealer to choose, storage options and the most common mistakes first-time buyers make.",
-    "readMin": 8,
-    "emoji": "🪙"
-  },
-  {
-    "slug": "why-gold-coin-prices-vary",
-    "tag": "Education",
-    "title": "Why Gold Coin Prices Vary Between Dealers — The Premium Explained",
-    "excerpt": "The price difference between dealers isn't random. Understanding premiums, cast vs minted, and why a Kangaroo is cheaper than a Britannia saves you real money.",
-    "readMin": 5,
-    "emoji": "📊"
-  },
-  {
-    "slug": "is-silver-good-investment-australia-2026",
-    "tag": "Analysis",
-    "title": "Is Silver a Good Investment in Australia in 2026?",
-    "excerpt": "The gold/silver ratio, GST implications on silver, cast bars vs coins, and how to store it cheaply. What Australian investors need to know.",
-    "readMin": 6,
-    "emoji": "🥈"
-  },
-  {
-    "slug": "best-online-gold-dealers-australia",
-    "tag": "Comparison",
-    "title": "Best Online Gold Dealers in Australia — Compared",
-    "excerpt": "Ainslie, ABC Bullion, Perth Mint, KJC, Jaggards, Swan and more — location, speciality, best products and what each dealer does better than the rest.",
-    "readMin": 7,
-    "emoji": "🏅"
-  }
-];
-  const ARTICLE_IMGS = {
-    "how-to-buy-gold-australia": "https://images.pexels.com/photos/47344/gold-bar-gold-bar-gold-47344.jpeg?w=800",
-    "why-gold-coin-prices-vary": "https://images.pexels.com/photos/128867/coins-currency-investment-insurance-128867.jpeg?w=800",
-    "is-silver-good-investment-australia-2026": "https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg?w=800",
-    "best-online-gold-dealers-australia": "https://images.pexels.com/photos/844124/pexels-photo-844124.jpeg?w=800",
-  };
+
+  const [articles, setArticles] = useState(STATIC_ARTICLES_META);
+  useEffect(() => {
+    fetchArticlesMeta().then(data => { if (data && data.length > 0) setArticles(data); }).catch(() => {});
+  }, []);
   const tagColors = {
-  "Guide": {
-    "bg": "#EFF6FF",
-    "color": "#1D4ED8"
-  },
-  "Education": {
-    "bg": "#F0FDF4",
-    "color": "#16A34A"
-  },
-  "Analysis": {
-    "bg": "#FEF9C3",
-    "color": "#854D0E"
-  },
-  "Comparison": {
-    "bg": "#FDF4FF",
-    "color": "#7E22CE"
-  }
-};
+    "Guide":      { bg: "#EFF6FF", color: "#1D4ED8" },
+    "Education":  { bg: "#F0FDF4", color: "#16A34A" },
+    "Analysis":   { bg: "#FEF9C3", color: "#854D0E" },
+    "Comparison": { bg: "#FDF4FF", color: "#7E22CE" },
+    "News":       { bg: "#FFF7ED", color: "#C2410C" },
+  };
 
   return (
     <div style={{ minHeight: "100vh", background: BG }}>
@@ -1701,7 +1700,7 @@ function MagazinePage({ goldSpot, silverSpot, updated }) {
                 onMouseEnter={function(e){ e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,.10)"; }}
                 onMouseLeave={function(e){ e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,.04)"; }}>
                 <div style={{ position: "relative", height: 160, overflow: "hidden" }}>
-                  <img src={ARTICLE_IMGS[a.slug]} alt={a.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  <img src={a.img} alt={a.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 55%)" }} />
                   <div style={{ position: "absolute", top: 10, left: 12, display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ fontSize: 9, fontWeight: 700, background: tc.bg, color: tc.color, padding: "2px 8px", borderRadius: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>{a.tag}</span>
@@ -2347,62 +2346,66 @@ function ProductRegistryPage({ metal, category, goldSpot, silverSpot }) {
   );
 }
 
+const STATIC_ARTICLES_FULL = {
+  "how-to-buy-gold-australia": {
+    title:"How to Buy Gold in Australia: A Complete 2026 Guide", tag:"Guide", readMin:8,
+    img:"https://images.pexels.com/photos/47344/gold-bar-gold-bar-gold-47344.jpeg?w=800",
+    sections:[
+      { h:"What is the spot price?", p:["The spot price is the real-time market price for one troy ounce of gold on international exchanges. Every dealer starts from this number and adds their premium on top.","In Australia spot prices are quoted in AUD. The live price is shown at the top of every page on this site."] },
+      { h:"Why do dealers charge more than spot?", p:["Every dealer adds a premium to cover production, distribution, and profit. A 1oz Kangaroo at A$6,900 when spot is A$6,600 carries a A$300 premium — about 4.5%.","Premiums vary significantly between dealers and products. Comparing them before you buy is exactly what this site is for."] },
+      { h:"Which product should you buy first?", p:["For first-time buyers, a 1oz Perth Mint Kangaroo gold coin is the most popular choice. It is globally recognised, easy to resell, and available from every major Australian dealer.","Gold bars have lower premiums than coins but are less liquid in small amounts. They suit buyers accumulating larger positions."] },
+      { h:"Choosing a dealer", p:["All dealers on this site are reputable Australian businesses. The main differences are price, shipping speed, and payment methods.","A 1-2% premium difference on a 1oz coin is A$65-130 at current prices. Always compare before buying."] },
+      { h:"Storage options", p:["Home storage in a quality safe suits most small buyers. Check your home insurance covers bullion.","For larger amounts, allocated vault storage is available from Ainslie Bullion, ABC Bullion, and the Perth Mint."] },
+      { h:"Common mistakes to avoid", p:["Buying without comparing premiums — the single biggest way to overpay.","Buying collector or numismatic coins instead of bullion. They carry much higher premiums and are harder to sell at fair value."] },
+    ]
+  },
+  "why-gold-coin-prices-vary": {
+    title:"Why Gold Coin Prices Vary Between Dealers — The Premium Explained", tag:"Education", readMin:5,
+    img:"https://images.pexels.com/photos/128867/coins-currency-investment-insurance-128867.jpeg?w=800",
+    sections:[
+      { h:"What is a premium?", p:["Every gold coin price has two parts: the spot price of the gold content, and the premium. The premium is the amount above spot the dealer charges.","A 1oz coin at A$6,900 when spot is A$6,600 has a premium of A$300 (4.5%). Lower is better for buyers."] },
+      { h:"Why premiums differ between dealers", p:["Dealers have different costs, buying power, and profit targets. A high-volume importer pays less per coin than a small retailer.","Some dealers hold inventory bought when premiums were higher, which can keep current prices elevated."] },
+      { h:"Cast bars vs minted bars", p:["Cast bars are poured into moulds and carry the lowest premiums of any gold product. For pure value they are hard to beat.","Minted bars are machine-pressed with a polished finish. They cost more to produce. Unless aesthetics matter to you, cast bars are the better value buy."] },
+      { h:"Why a Kangaroo is cheaper than a Britannia", p:["The Kangaroo is produced in Australia and sold in large volumes domestically. Low distribution costs and high volume keep premiums competitive.","The Britannia is imported from the UK Royal Mint. Import costs and currency exchange add to the premium. Expect to pay 1-2% more."] },
+      { h:"Using this site to find the lowest premium", p:["The Gold Coins and Silver Coins registry pages show every product sorted by premium. The lowest premium is always at the top.","For most buyers the Kangaroo or Kookaburra in 1oz offers the best combination of low premium and liquidity."] },
+    ]
+  },
+  "is-silver-good-investment-australia-2026": {
+    title:"Is Silver a Good Investment in Australia in 2026?", tag:"Analysis", readMin:6,
+    img:"https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg?w=800",
+    sections:[
+      { h:"The gold/silver ratio", p:["The ratio measures how many ounces of silver it takes to buy one ounce of gold. The historical average is around 60:1. In 2026 it sits near 90:1, suggesting silver is undervalued relative to gold.","Silver bulls argue the ratio will revert to the mean, giving silver more upside than gold. This is a popular thesis but not guaranteed."] },
+      { h:"The GST problem for Australian buyers", p:["Gold bullion in Australia is GST-exempt. Silver bullion is not — you pay 10% GST on purchase.","That 10% tax means silver needs to rise 10% before you break even on a sale. It changes the investment calculation significantly compared to gold."] },
+      { h:"Cast bars vs coins for silver", p:["Cast silver bars carry the lowest premiums and are the best choice for investors focused on value. A 1kg cast bar typically carries a 5-10% premium over spot.","Silver coins (Kookaburra, Kangaroo) are more recognisable and easier to sell in smaller amounts, but carry higher premiums."] },
+      { h:"Storage considerations", p:["Silver is much bulkier than gold for the same dollar value. A A$10,000 position in silver takes up far more physical space than the equivalent in gold.","Home storage in a heavy safe works for most buyers. For larger quantities, allocated vault storage avoids the logistical burden."] },
+      { h:"The bottom line", p:["Silver can be a legitimate part of a precious metals portfolio, particularly if you believe the gold/silver ratio will normalise.","The 10% GST is a real headwind. Factor it into your return expectations before you buy."] },
+    ]
+  },
+  "best-online-gold-dealers-australia": {
+    title:"Best Online Gold Dealers in Australia — Compared", tag:"Comparison", readMin:7,
+    img:"https://images.pexels.com/photos/844124/pexels-photo-844124.jpeg?w=800",
+    sections:[
+      { h:"Ainslie Bullion — Brisbane", p:["Founded in 1974, Ainslie is one of Australia's largest and oldest bullion dealers with one of the widest product ranges in the country.","Best for: buyers who want a huge selection and a well-established dealer with a long track record."] },
+      { h:"ABC Bullion — Sydney", p:["Part of the ABC Refinery, one of only a handful of LBMA-accredited refineries in Australia. They produce their own branded bars sold at competitive prices.","Best for: buyers who want ABC-branded cast bars at wholesale-competitive prices with strong institutional backing."] },
+      { h:"Perth Mint — Perth", p:["A government-owned entity and one of the world's largest precious metals operations. Their Kangaroo coin is Australia's most recognised bullion product.","Best for: buyers who want the highest quality guarantee and are comfortable paying a small premium for government backing."] },
+      { h:"KJC Bullion — Melbourne", p:["Operating since 1979 with a wide range of coins and bars. Competitive pricing with a focus on the Melbourne and Victorian market.","Best for: competitive gold coin pricing on Kangaroos and Maple Leafs."] },
+      { h:"Jaggards — Sydney", p:["One of Sydney's oldest dealers with strong walk-in trade and competitive online pricing across gold and silver.","Best for: Sydney buyers who want the option to transact in person as well as online."] },
+      { h:"Swan Bullion — Perth", p:["A newer online-focused dealer with competitive pricing, particularly strong on silver products with a growing gold range.","Best for: silver buyers looking for competitive premiums, especially on cast bars."] },
+      { h:"How to choose", p:["Use the comparison tables on this site to find the lowest price for your specific product. All dealers listed are legitimate Australian businesses.","Factor in shipping cost and insurance when comparing. A slightly higher product price from a closer dealer may be cheaper overall."] },
+    ]
+  },
+};
+
 function ArticlePage({ goldSpot, silverSpot, updated }) {
   const { slug } = useParams();
   const navigate  = useNavigate();
   const mobile    = useIsMobile();
-  const ARTICLES  = {
-    "how-to-buy-gold-australia": {
-      title:"How to Buy Gold in Australia: A Complete 2026 Guide", tag:"Guide", readMin:8,
-      img:"https://images.pexels.com/photos/47344/gold-bar-gold-bar-gold-47344.jpeg?w=800",
-      sections:[
-        { h:"What is the spot price?", p:["The spot price is the real-time market price for one troy ounce of gold on international exchanges. Every dealer starts from this number and adds their premium on top.","In Australia spot prices are quoted in AUD. The live price is shown at the top of every page on this site."] },
-        { h:"Why do dealers charge more than spot?", p:["Every dealer adds a premium to cover production, distribution, and profit. A 1oz Kangaroo at A$6,900 when spot is A$6,600 carries a A$300 premium — about 4.5%.","Premiums vary significantly between dealers and products. Comparing them before you buy is exactly what this site is for."] },
-        { h:"Which product should you buy first?", p:["For first-time buyers, a 1oz Perth Mint Kangaroo gold coin is the most popular choice. It is globally recognised, easy to resell, and available from every major Australian dealer.","Gold bars have lower premiums than coins but are less liquid in small amounts. They suit buyers accumulating larger positions."] },
-        { h:"Choosing a dealer", p:["All dealers on this site are reputable Australian businesses. The main differences are price, shipping speed, and payment methods.","A 1-2% premium difference on a 1oz coin is A$65-130 at current prices. Always compare before buying."] },
-        { h:"Storage options", p:["Home storage in a quality safe suits most small buyers. Check your home insurance covers bullion.","For larger amounts, allocated vault storage is available from Ainslie Bullion, ABC Bullion, and the Perth Mint."] },
-        { h:"Common mistakes to avoid", p:["Buying without comparing premiums — the single biggest way to overpay.","Buying collector or numismatic coins instead of bullion. They carry much higher premiums and are harder to sell at fair value."] },
-      ]
-    },
-    "why-gold-coin-prices-vary": {
-      title:"Why Gold Coin Prices Vary Between Dealers — The Premium Explained", tag:"Education", readMin:5,
-      img:"https://images.pexels.com/photos/128867/coins-currency-investment-insurance-128867.jpeg?w=800",
-      sections:[
-        { h:"What is a premium?", p:["Every gold coin price has two parts: the spot price of the gold content, and the premium. The premium is the amount above spot the dealer charges.","A 1oz coin at A$6,900 when spot is A$6,600 has a premium of A$300 (4.5%). Lower is better for buyers."] },
-        { h:"Why premiums differ between dealers", p:["Dealers have different costs, buying power, and profit targets. A high-volume importer pays less per coin than a small retailer.","Some dealers hold inventory bought when premiums were higher, which can keep current prices elevated."] },
-        { h:"Cast bars vs minted bars", p:["Cast bars are poured into moulds and carry the lowest premiums of any gold product. For pure value they are hard to beat.","Minted bars are machine-pressed with a polished finish. They cost more to produce. Unless aesthetics matter to you, cast bars are the better value buy."] },
-        { h:"Why a Kangaroo is cheaper than a Britannia", p:["The Kangaroo is produced in Australia and sold in large volumes domestically. Low distribution costs and high volume keep premiums competitive.","The Britannia is imported from the UK Royal Mint. Import costs and currency exchange add to the premium. Expect to pay 1-2% more."] },
-        { h:"Using this site to find the lowest premium", p:["The Gold Coins and Silver Coins registry pages show every product sorted by premium. The lowest premium is always at the top.","For most buyers the Kangaroo or Kookaburra in 1oz offers the best combination of low premium and liquidity."] },
-      ]
-    },
-    "is-silver-good-investment-australia-2026": {
-      title:"Is Silver a Good Investment in Australia in 2026?", tag:"Analysis", readMin:6,
-      img:"https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg?w=800",
-      sections:[
-        { h:"The gold/silver ratio", p:["The ratio measures how many ounces of silver it takes to buy one ounce of gold. The historical average is around 60:1. In 2026 it sits near 90:1, suggesting silver is undervalued relative to gold.","Silver bulls argue the ratio will revert to the mean, giving silver more upside than gold. This is a popular thesis but not guaranteed."] },
-        { h:"The GST problem for Australian buyers", p:["Gold bullion in Australia is GST-exempt. Silver bullion is not — you pay 10% GST on purchase.","That 10% tax means silver needs to rise 10% before you break even on a sale. It changes the investment calculation significantly compared to gold."] },
-        { h:"Cast bars vs coins for silver", p:["Cast silver bars carry the lowest premiums and are the best choice for investors focused on value. A 1kg cast bar typically carries a 5-10% premium over spot.","Silver coins (Kookaburra, Kangaroo) are more recognisable and easier to sell in smaller amounts, but carry higher premiums."] },
-        { h:"Storage considerations", p:["Silver is much bulkier than gold for the same dollar value. A A$10,000 position in silver takes up far more physical space than the equivalent in gold.","Home storage in a heavy safe works for most buyers. For larger quantities, allocated vault storage avoids the logistical burden."] },
-        { h:"The bottom line", p:["Silver can be a legitimate part of a precious metals portfolio, particularly if you believe the gold/silver ratio will normalise.","The 10% GST is a real headwind. Factor it into your return expectations before you buy."] },
-      ]
-    },
-    "best-online-gold-dealers-australia": {
-      title:"Best Online Gold Dealers in Australia — Compared", tag:"Comparison", readMin:7,
-      img:"https://images.pexels.com/photos/844124/pexels-photo-844124.jpeg?w=800",
-      sections:[
-        { h:"Ainslie Bullion — Brisbane", p:["Founded in 1974, Ainslie is one of Australia's largest and oldest bullion dealers with one of the widest product ranges in the country.","Best for: buyers who want a huge selection and a well-established dealer with a long track record."] },
-        { h:"ABC Bullion — Sydney", p:["Part of the ABC Refinery, one of only a handful of LBMA-accredited refineries in Australia. They produce their own branded bars sold at competitive prices.","Best for: buyers who want ABC-branded cast bars at wholesale-competitive prices with strong institutional backing."] },
-        { h:"Perth Mint — Perth", p:["A government-owned entity and one of the world's largest precious metals operations. Their Kangaroo coin is Australia's most recognised bullion product.","Best for: buyers who want the highest quality guarantee and are comfortable paying a small premium for government backing."] },
-        { h:"KJC Bullion — Melbourne", p:["Operating since 1979 with a wide range of coins and bars. Competitive pricing with a focus on the Melbourne and Victorian market.","Best for: competitive gold coin pricing on Kangaroos and Maple Leafs."] },
-        { h:"Jaggards — Sydney", p:["One of Sydney's oldest dealers with strong walk-in trade and competitive online pricing across gold and silver.","Best for: Sydney buyers who want the option to transact in person as well as online."] },
-        { h:"Swan Bullion — Perth", p:["A newer online-focused dealer with competitive pricing, particularly strong on silver products with a growing gold range.","Best for: silver buyers looking for competitive premiums, especially on cast bars."] },
-        { h:"How to choose", p:["Use the comparison tables on this site to find the lowest price for your specific product. All dealers listed are legitimate Australian businesses.","Factor in shipping cost and insurance when comparing. A slightly higher product price from a closer dealer may be cheaper overall."] },
-      ]
-    },
-  };
+  const TC = { Guide:{bg:"#EFF6FF",color:"#1D4ED8"}, Education:{bg:"#F0FDF4",color:"#16A34A"}, Analysis:{bg:"#FEF9C3",color:"#854D0E"}, Comparison:{bg:"#FDF4FF",color:"#7E22CE"}, News:{bg:"#FFF7ED",color:"#C2410C"} };
 
-  const article = ARTICLES[slug];
-  const TC = { Guide:{bg:"#EFF6FF",color:"#1D4ED8"}, Education:{bg:"#F0FDF4",color:"#16A34A"}, Analysis:{bg:"#FEF9C3",color:"#854D0E"}, Comparison:{bg:"#FDF4FF",color:"#7E22CE"} };
+  const [article, setArticle] = useState(STATIC_ARTICLES_FULL[slug] || null);
+  useEffect(() => {
+    fetchArticleBySlug(slug).then(data => { if (data) setArticle(data); }).catch(() => {});
+  }, [slug]);
 
   useSEO({
     title: article ? article.title + " | GoldSilverPrices.com.au" : "Article Not Found",
